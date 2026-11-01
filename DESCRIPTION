@@ -1,0 +1,20 @@
+Package: modelterms
+Type: Package
+Title: Coerce, Inspect, Filter, and Match Model Terms
+Version: 0.1.0
+Authors@R: c(
+    person("Ryoichi", "Asashiba", email = "ryoichi.asashiba@gmail.com",
+           role = c("aut", "cre"), comment = c(ORCID = "0009-0001-9532-7000"))
+  )
+Description: A lightweight, zero-dependency suite of functions to seamlessly 
+    manipulate terms objects, formulas, fitted models, and character 
+    vectors of term labels. It provides robust coercion, three-level variable 
+    extraction, declarative term filtering, and order-invariant label matching 
+    for statistical modeling workflows.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
