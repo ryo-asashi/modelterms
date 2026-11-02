@@ -60,71 +60,71 @@ make_signature(x, strict = TRUE, ...)
 match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
 }
 \arguments{
-\item{x, y}{An object representing model terms: a \code{\link[stats]{terms}} object,
+\item{x, y}{an object representing model terms: a \code{\link[stats]{terms}} object,
 a \code{\link[stats]{formula}}, a fitted model object, or a character vector.
 In \code{as_terms()}, \code{y} specifies an optional response variable (as a character
 string or language object). In \code{match_labels()}, \code{y} is the target object
 whose term labels are matched against.}
 
-\item{intercept}{Logical. In \code{as_terms()}, should an intercept be included by default
+\item{intercept}{logical. In \code{as_terms()}, should an intercept be included by default
 when coercing a character vector? Defaults to \code{FALSE}. Explicit tokens in \code{x}
 (such as \code{"1"} or \code{"+1"}) override this default. In \code{filter_terms()},
 whether to retain the intercept of \code{x}.}
 
-\item{data}{A \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.}
+\item{data}{a \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.}
 
-\item{keep.order}{Logical. Should terms be kept in their input order rather than sorted by
+\item{keep.order}{logical. Should terms be kept in their input order rather than sorted by
 interaction order? Defaults to \code{TRUE} for strict term label vectors and \code{FALSE}
 for formulas or length-1 formula shorthands.}
 
-\item{env}{An environment to attach to the resulting \code{terms} object when coercing
+\item{env}{an environment to attach to the resulting \code{terms} object when coercing
 from a character vector. Defaults to \code{parent.frame()}.}
 
-\item{...}{Additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.}
+\item{...}{additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.}
 
-\item{raw}{Logical. If \code{FALSE} (default in \code{get_variables()} and
+\item{raw}{logical. If \code{FALSE} (default in \code{get_variables()} and
 \code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
 If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
 raw column names (e.g., \code{"x2"}).}
 
-\item{each.term}{Logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
+\item{each.term}{logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
 character vector across the whole model. If \code{TRUE}, returns a named list mapping
 each term label to its constituent variables.}
 
-\item{keep, drop}{A character vector of term labels (matched order-invariantly via
+\item{keep, drop}{a character vector of term labels (matched order-invariantly via
 \code{match_labels()}) or an integer vector of term indices to explicitly retain
 (\code{keep}) or exclude (\code{drop}) in \code{filter_terms()}.}
 
-\item{order}{An integer vector specifying interaction orders to retain in \code{filter_terms()}
+\item{order}{an integer vector specifying interaction orders to retain in \code{filter_terms()}
 (e.g., \code{1L} for main effects, \code{2L} for two-way interactions).}
 
-\item{require}{A character vector of variable names. Only terms containing at least one
+\item{require}{a character vector of variable names. Only terms containing at least one
 of these variables are retained.}
 
-\item{remove}{A character vector of variable names. Any terms containing these variables
+\item{remove}{a character vector of variable names. Any terms containing these variables
 are excluded.}
 
-\item{response}{Logical. Whether to retain the response variable in \code{filter_terms()}.
+\item{response}{logical. Whether to retain the response variable in \code{filter_terms()}.
 Defaults to \code{TRUE}.}
 
-\item{strict}{Logical. If \code{TRUE} (default), \code{make_signature()} and
+\item{strict}{logical. If \code{TRUE} (default), \code{make_signature()} and
 \code{match_labels()} require each element to be a single valid term.}
 
-\item{nomatch}{Character string specifying how to handle unmatched labels in
+\item{nomatch}{character string specifying how to handle unmatched labels in
 \code{match_labels()}: \code{"pass"} (returns \code{NA}), \code{"omit"} (drops
 unmatched elements), or \code{"fail"} (throws an error).}
 }
 \value{
 \itemize{
-  \item \code{as_terms()}, \code{filter_terms()}: A \code{\link[stats]{terms}} object.
+  \item \code{as_terms()}, \code{filter_terms()}: a \code{\link[stats]{terms}} object.
   \item \code{has_intercept()}, \code{has_response()},
-    \code{is_single_term()}, \code{is_fully_crossed()}: A scalar logical (\code{TRUE} or \code{FALSE}).
-  \item \code{get_order()}: A named integer vector of term orders.
+    \code{is_single_term()}, \code{is_fully_crossed()}: a scalar logical (\code{TRUE} or \code{FALSE}).
+  \item \code{get_order()}: a named integer vector of term orders.
   \item \code{get_labels()}, \code{make_signature()}, \code{match_labels()}:
-    A character vector.
-  \item \code{get_response()}: A character string (when \code{raw = FALSE}), a character
+    a character vector.
+  \item \code{get_response()}: a character string (when \code{raw = FALSE}), a character
     vector of variable names (when \code{raw = TRUE}), or \code{NULL} if no response exists.
-  \item \code{get_variables()}: A character vector (when \code{each.term = FALSE}) or
+  \item \code{get_variables()}: a character vector (when \code{each.term = FALSE}) or
     a named list of character vectors (when \code{each.term = TRUE}).
 }
 }
@@ -145,7 +145,7 @@ this package distinguishes three structural levels:
     The distinct predictor expressions forming the terms (rows of the \code{"factors"} matrix):
     \code{c("x1", "log(x2)", "I(x1 * x2)")}.
   \item \strong{Raw Variables} (\code{get_variables(x, raw = TRUE)}):
-    The underlying column names required in a \code{data.frame}:
+    The underlying column names required in \code{data}:
     \code{c("x1", "x2")}.
 }
 }
@@ -207,5 +207,4 @@ fml |> filter_terms(drop = "log(x2):x1", response = FALSE)
 # Signatures and order-invariant label matching
 make_signature(c("log(x2):x1", "x1 + x2"))
 match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
-
 }

@@ -17,7 +17,7 @@
 #'     The distinct predictor expressions forming the terms (rows of the \code{"factors"} matrix):
 #'     \code{c("x1", "log(x2)", "I(x1 * x2)")}.
 #'   \item \strong{Raw Variables} (\code{get_variables(x, raw = TRUE)}):
-#'     The underlying column names required in a \code{data.frame}:
+#'     The underlying column names required in \code{data}:
 #'     \code{c("x1", "x2")}.
 #' }
 #' }
@@ -53,57 +53,57 @@
 #' }
 #' }
 #'
-#' @param x,y An object representing model terms: a \code{\link[stats]{terms}} object,
+#' @param x,y an object representing model terms: a \code{\link[stats]{terms}} object,
 #'   a \code{\link[stats]{formula}}, a fitted model object, or a character vector.
 #'   In \code{as_terms()}, \code{y} specifies an optional response variable (as a character
 #'   string or language object). In \code{match_labels()}, \code{y} is the target object
 #'   whose term labels are matched against.
-#' @param intercept Logical. In \code{as_terms()}, should an intercept be included by default
+#' @param intercept logical. In \code{as_terms()}, should an intercept be included by default
 #'   when coercing a character vector? Defaults to \code{FALSE}. Explicit tokens in \code{x}
 #'   (such as \code{"1"} or \code{"+1"}) override this default. In \code{filter_terms()},
 #'   whether to retain the intercept of \code{x}.
-#' @param data A \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.
-#' @param keep.order Logical. Should terms be kept in their input order rather than sorted by
+#' @param data a \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.
+#' @param keep.order logical. Should terms be kept in their input order rather than sorted by
 #'   interaction order? Defaults to \code{TRUE} for strict term label vectors and \code{FALSE}
 #'   for formulas or length-1 formula shorthands.
-#' @param env An environment to attach to the resulting \code{terms} object when coercing
+#' @param env an environment to attach to the resulting \code{terms} object when coercing
 #'   from a character vector. Defaults to \code{parent.frame()}.
-#' @param raw Logical. If \code{FALSE} (default in \code{get_variables()} and
+#' @param raw logical. If \code{FALSE} (default in \code{get_variables()} and
 #'   \code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
 #'   If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
 #'   raw column names (e.g., \code{"x2"}).
-#' @param each.term Logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
+#' @param each.term logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
 #'   character vector across the whole model. If \code{TRUE}, returns a named list mapping
 #'   each term label to its constituent variables.
-#' @param keep,drop A character vector of term labels (matched order-invariantly via
+#' @param keep,drop a character vector of term labels (matched order-invariantly via
 #'   \code{match_labels()}) or an integer vector of term indices to explicitly retain
 #'   (\code{keep}) or exclude (\code{drop}) in \code{filter_terms()}.
-#' @param order An integer vector specifying interaction orders to retain in \code{filter_terms()}
+#' @param order an integer vector specifying interaction orders to retain in \code{filter_terms()}
 #'   (e.g., \code{1L} for main effects, \code{2L} for two-way interactions).
-#' @param require A character vector of variable names. Only terms containing at least one
+#' @param require a character vector of variable names. Only terms containing at least one
 #'   of these variables are retained.
-#' @param remove A character vector of variable names. Any terms containing these variables
+#' @param remove a character vector of variable names. Any terms containing these variables
 #'   are excluded.
-#' @param response Logical. Whether to retain the response variable in \code{filter_terms()}.
+#' @param response logical. Whether to retain the response variable in \code{filter_terms()}.
 #'   Defaults to \code{TRUE}.
-#' @param strict Logical. If \code{TRUE} (default), \code{make_signature()} and
+#' @param strict logical. If \code{TRUE} (default), \code{make_signature()} and
 #'   \code{match_labels()} require each element to be a single valid term.
-#' @param nomatch Character string specifying how to handle unmatched labels in
+#' @param nomatch character string specifying how to handle unmatched labels in
 #'   \code{match_labels()}: \code{"pass"} (returns \code{NA}), \code{"omit"} (drops
 #'   unmatched elements), or \code{"fail"} (throws an error).
-#' @param ... Additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.
+#' @param ... additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.
 #'
 #' @returns
 #' \itemize{
-#'   \item \code{as_terms()}, \code{filter_terms()}: A \code{\link[stats]{terms}} object.
+#'   \item \code{as_terms()}, \code{filter_terms()}: a \code{\link[stats]{terms}} object.
 #'   \item \code{has_intercept()}, \code{has_response()},
-#'     \code{is_single_term()}, \code{is_fully_crossed()}: A scalar logical (\code{TRUE} or \code{FALSE}).
-#'   \item \code{get_order()}: A named integer vector of term orders.
+#'     \code{is_single_term()}, \code{is_fully_crossed()}: a scalar logical (\code{TRUE} or \code{FALSE}).
+#'   \item \code{get_order()}: a named integer vector of term orders.
 #'   \item \code{get_labels()}, \code{make_signature()}, \code{match_labels()}:
-#'     A character vector.
-#'   \item \code{get_response()}: A character string (when \code{raw = FALSE}), a character
+#'     a character vector.
+#'   \item \code{get_response()}: a character string (when \code{raw = FALSE}), a character
 #'     vector of variable names (when \code{raw = TRUE}), or \code{NULL} if no response exists.
-#'   \item \code{get_variables()}: A character vector (when \code{each.term = FALSE}) or
+#'   \item \code{get_variables()}: a character vector (when \code{each.term = FALSE}) or
 #'     a named list of character vectors (when \code{each.term = TRUE}).
 #' }
 #'
@@ -133,20 +133,21 @@
 #' # Signatures and order-invariant label matching
 #' make_signature(c("log(x2):x1", "x1 + x2"))
 #' match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
-#'
 #' @name modelterms
 NULL
 
 
-# Internal null-coalescing helper
+# miscellaneous helpers
+
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
-# Internal pluralization helper
-add_s <- function(n, word) {
-  sprintf("%d %s%s", n, word, if (n == 1L) "" else "s")
+add_s <- function(n, noun, suffix = "s") {
+  paste0(n, " ", noun, if (is.numeric(n) && n != 1L) suffix)
 }
 
-# Internal helper: check if a single string is strictly one self-contained term label
+
+# internal helpers
+
 is_strict_label <- function(str) {
   if (is.na(str) || !nzchar(trimws(str))) return(FALSE)
   expr <- tryCatch(str2lang(str), error = function(e) NULL)
@@ -162,7 +163,7 @@ is_strict_label <- function(str) {
     attr(obj, "intercept") == 0L
 }
 
-# Internal helper: safely attempt as_terms() without throwing an error
+
 try_terms <- function(x, ...) {
   tryCatch(as_terms(x, ...), error = function(e) NULL)
 }
