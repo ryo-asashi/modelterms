@@ -5,10 +5,10 @@
 \alias{as_terms}
 \alias{has_intercept}
 \alias{has_response}
+\alias{get_response}
 \alias{get_order}
 \alias{get_labels}
 \alias{get_variables}
-\alias{get_response}
 \alias{filter_terms}
 \alias{is_single_term}
 \alias{is_fully_crossed}
@@ -26,20 +26,22 @@ as_terms(
   ...
 )
 
-has_intercept(x)
+has_intercept(x, ...)
 
-has_response(x)
+has_response(x, ...)
 
-get_order(x)
+get_response(x, raw = FALSE, ...)
 
-get_labels(x)
+get_order(x, ...)
 
-get_variables(x, raw = FALSE, each.term = FALSE)
+get_labels(x, ...)
 
-get_response(x, raw = FALSE)
+get_variables(x, raw = FALSE, each.term = FALSE, ...)
 
 filter_terms(
   x,
+  keep = NULL,
+  drop = NULL,
   order = NULL,
   require = NULL,
   remove = NULL,
@@ -49,73 +51,79 @@ filter_terms(
   ...
 )
 
-is_single_term(x)
+is_single_term(x, ...)
 
-is_fully_crossed(x)
+is_fully_crossed(x, ...)
 
-make_signature(x, strict = TRUE)
+make_signature(x, strict = TRUE, ...)
 
-match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"))
+match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
 }
 \arguments{
-\item{x, y}{an object representing model terms: a \code{\link[stats]{terms}} object,
+\item{x, y}{An object representing model terms: a \code{\link[stats]{terms}} object,
 a \code{\link[stats]{formula}}, a fitted model object, or a character vector.
 In \code{as_terms()}, \code{y} specifies an optional response variable (as a character
 string or language object). In \code{match_labels()}, \code{y} is the target object
 whose term labels are matched against.}
 
-\item{intercept}{logical. In \code{as_terms()}, should an intercept be included by default
+\item{intercept}{Logical. In \code{as_terms()}, should an intercept be included by default
 when coercing a character vector? Defaults to \code{FALSE}. Explicit tokens in \code{x}
 (such as \code{"1"} or \code{"+1"}) override this default. In \code{filter_terms()},
 whether to retain the intercept of \code{x}.}
 
-\item{data}{a \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.}
+\item{data}{A \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.}
 
-\item{keep.order}{logical. Should terms be kept in their input order rather than sorted by
+\item{keep.order}{Logical. Should terms be kept in their input order rather than sorted by
 interaction order? Defaults to \code{TRUE} for strict term label vectors and \code{FALSE}
 for formulas or length-1 formula shorthands.}
 
-\item{env}{an environment to attach to the resulting \code{terms} object when coercing
+\item{env}{An environment to attach to the resulting \code{terms} object when coercing
 from a character vector. Defaults to \code{parent.frame()}.}
 
-\item{...}{additional arguments passed to \code{\link[stats]{terms}}.}
+\item{...}{Additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.}
 
-\item{raw}{logical. If \code{FALSE} (default in \code{get_variables()}), returns predictor
-expressions (e.g., \code{"log(x2)"}). If \code{TRUE} (default in \code{filter_terms()}),
-extracts or filters by underlying raw column names (e.g., \code{"x2"}).}
+\item{raw}{Logical. If \code{FALSE} (default in \code{get_variables()} and
+\code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
+If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
+raw column names (e.g., \code{"x2"}).}
 
-\item{each.term}{logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
+\item{each.term}{Logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
 character vector across the whole model. If \code{TRUE}, returns a named list mapping
 each term label to its constituent variables.}
 
-\item{order}{an integer vector specifying interaction orders to retain in \code{filter_terms()}
+\item{keep, drop}{A character vector of term labels (matched order-invariantly via
+\code{match_labels()}) or an integer vector of term indices to explicitly retain
+(\code{keep}) or exclude (\code{drop}) in \code{filter_terms()}.}
+
+\item{order}{An integer vector specifying interaction orders to retain in \code{filter_terms()}
 (e.g., \code{1L} for main effects, \code{2L} for two-way interactions).}
 
-\item{require}{a character vector of variable names. Only terms containing at least one
+\item{require}{A character vector of variable names. Only terms containing at least one
 of these variables are retained.}
 
-\item{remove}{a character vector of variable names. Any terms containing these variables
+\item{remove}{A character vector of variable names. Any terms containing these variables
 are excluded.}
 
-\item{response}{logical. Whether to retain the response variable in \code{filter_terms()}.
+\item{response}{Logical. Whether to retain the response variable in \code{filter_terms()}.
 Defaults to \code{TRUE}.}
 
-\item{strict}{logical. If \code{TRUE} (default), \code{make_signature()} and \code{match_labels()}
-require each element to be a single valid term.}
+\item{strict}{Logical. If \code{TRUE} (default), \code{make_signature()} and
+\code{match_labels()} require each element to be a single valid term.}
 
-\item{nomatch}{character string specifying how to handle unmatched labels in \code{match_labels()}:
-\code{"pass"} (returns \code{NA}), \code{"omit"} (drops unmatched elements), or
-\code{"fail"} (throws an error).}
+\item{nomatch}{Character string specifying how to handle unmatched labels in
+\code{match_labels()}: \code{"pass"} (returns \code{NA}), \code{"omit"} (drops
+unmatched elements), or \code{"fail"} (throws an error).}
 }
 \value{
 \itemize{
-  \item \code{as_terms()}, \code{filter_terms()}: A \code{\link[stats]{terms}} object
-    (or \code{NULL} if \code{as_terms()} fails).
-  \item \code{has_intercept()}, \code{has_response()}, \code{is_single_term()},
-    \code{is_fully_crossed()}: A scalar logical (\code{TRUE} or \code{FALSE}).
+  \item \code{as_terms()}, \code{filter_terms()}: A \code{\link[stats]{terms}} object.
+  \item \code{has_intercept()}, \code{has_response()},
+    \code{is_single_term()}, \code{is_fully_crossed()}: A scalar logical (\code{TRUE} or \code{FALSE}).
   \item \code{get_order()}: A named integer vector of term orders.
   \item \code{get_labels()}, \code{make_signature()}, \code{match_labels()}:
     A character vector.
+  \item \code{get_response()}: A character string (when \code{raw = FALSE}), a character
+    vector of variable names (when \code{raw = TRUE}), or \code{NULL} if no response exists.
   \item \code{get_variables()}: A character vector (when \code{each.term = FALSE}) or
     a named list of character vectors (when \code{each.term = TRUE}).
 }
@@ -130,13 +138,15 @@ vectors of term labels.
 For a model formula such as \code{y ~ x1 + log(x2) + x1:log(x2) + I(x1 * x2)},
 this package distinguishes three structural levels:
 \enumerate{
-  \item \strong{Term Labels} (\code{get_labels()}):
-    The additive components of the model: \code{c("x1", "log(x2)", "x1:log(x2)", "I(x1 * x2)")}.
+  \item \strong{Term Labels} (\code{get_labels(x)}):
+    The individual additive components of the model:
+    \code{c("x1", "log(x2)", "I(x1 * x2)", "x1:log(x2)")}.
   \item \strong{Model Variables} (\code{get_variables(x, raw = FALSE)}):
-    The distinct expressions forming the terms (rows of the \code{"factors"} matrix):
+    The distinct predictor expressions forming the terms (rows of the \code{"factors"} matrix):
     \code{c("x1", "log(x2)", "I(x1 * x2)")}.
   \item \strong{Raw Variables} (\code{get_variables(x, raw = TRUE)}):
-    The underlying column names required in a data frame: \code{c("x1", "x2")}.
+    The underlying column names required in a \code{data.frame}:
+    \code{c("x1", "x2")}.
 }
 }
 
@@ -155,28 +165,47 @@ a vector of strict term labels and a length-1 formula shorthand:
     (\code{keep.order = FALSE}).
   \item \strong{Invalid Mixed Vectors (\code{length(x) >= 2})}: If \code{x} has length 2 or
     more and contains any non-single-term expression (such as \code{c("a * b", "c")} or
-    \code{c(".", "a")}), coercion fails and returns \code{NULL}.
+    \code{c(".", "a")}), an informative error is thrown.
+}
+}
+
+\subsection{Safe Alternatives to Base R \code{stats} Functions}{
+\code{filter_terms()} serves as a declarative, crash-safe replacement for
+\code{\link[stats]{drop.terms}}, \code{\link[stats]{delete.response}}, and \code{[.terms}:
+\itemize{
+  \item \code{filter_terms(x, response = FALSE)} safely removes the response variable
+    like \code{stats::delete.response(x)}.
+  \item \code{filter_terms(x, drop = ...)} and \code{filter_terms(x, keep = ...)} subset
+    specific terms by character label (order-invariant) or numeric index without crashing
+    when all terms are dropped.
 }
 }
 }
 \examples{
-# Coercion rules for character vectors
-as_terms(c("b:a", "a", "1"))                 # Strict labels: order & "b:a" preserved
-as_terms("a * b + c + 1")                    # Length-1 shorthand: expanded & sorted
-as_terms(".^2", data = iris[, 1:3])          # Length-1 dot shorthand with data
+# Coercion with as_terms()
+t1 <- as_terms(c("b:a", "a", "1"))
+get_labels(t1)
+has_intercept(t1)
 
-# Extracting labels and variables at three levels
-fml <- y ~ x1 + log(x2) + x1:log(x2) + I(x1 * x2)
+t2 <- as_terms(".^2", y = "Ozone", data = airquality[, 1:4])
+get_labels(t2)
+
+# Extracting labels, variables, and response at three levels
+fml <- log(y) ~ x1 + log(x2) + x1:log(x2) + I(x1 * x2)
+get_response(fml, raw = FALSE)
+get_response(fml, raw = TRUE)
 get_labels(fml)
 get_variables(fml, raw = FALSE)
 get_variables(fml, raw = TRUE)
 get_variables(fml, raw = TRUE, each.term = TRUE)
 
-# Filtering terms and piping to get_labels()
+# Filtering terms by order, variables, or specific term labels
 fml |> filter_terms(order = 1) |> get_labels()
 fml |> filter_terms(require = "x2", remove = "x1", raw = TRUE) |> get_labels()
+fml |> filter_terms(drop = "log(x2):x1", response = FALSE)
 
 # Signatures and order-invariant label matching
 make_signature(c("log(x2):x1", "x1 + x2"))
-match_labels(c("log(x2):x1", "x1"), fml)
+match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
+
 }

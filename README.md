@@ -27,11 +27,11 @@ historically suffered from ambiguity. For instance, it appears as the
 `terms` argument in `stats::predict.lm()` which accepts character
 vectors of additive components, whereas the `"terms"` objects stored
 inside fitted models are formula packed with complex attributes, not
-character vectors.
+character vectors, and they are not interchangeable.
 
-While Base R’s `stats::terms()` and `stats::drop.terms()` provide
-powerful formula parsing, working with them programmatically often
-involves sharp edges:
+Furthermore, while Base R’s `stats::terms()` and `stats::drop.terms()`
+provide powerful formula parsing, working with them programmatically
+often involves sharp edges:
 
 1.  **Inconsistent Coercion**: `stats::terms()` cannot directly coerce a
     character vector of term labels like `c("x1", "x2")`, and
@@ -150,8 +150,7 @@ match_labels(c("x1", "x1 * x2", "unknown"), labs, nomatch = "omit")
 
 ## Function Reference Summary
 
-- Coercion: `as_terms()`
-- Filtering: `filter_terms()`
+- Coercion & Filtering: `as_terms()`, `filter_terms()`
 - Extraction: `get_labels()`, `get_variables()`, `get_response()`,
   `get_order()`
 - Inspection & Predicates: `has_intercept()`, `has_response()`,
