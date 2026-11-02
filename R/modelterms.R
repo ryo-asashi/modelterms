@@ -12,7 +12,7 @@
 #' \enumerate{
 #'   \item \strong{Term Labels} (\code{get_labels(x)}):
 #'     The individual additive components of the model:
-#'     \code{c("x1", "log(x2)", "I(x1 * x2)", "x1:log(x2)")}.
+#'     \code{c("x1", "log(x2)", "x1:log(x2)", "I(x1 * x2)")}.
 #'   \item \strong{Model Variables} (\code{get_variables(x, raw = FALSE)}):
 #'     The distinct predictor expressions forming the terms (rows of the \code{"factors"} matrix):
 #'     \code{c("x1", "log(x2)", "I(x1 * x2)")}.
@@ -41,40 +41,39 @@
 #' }
 #' }
 #'
-#' \subsection{Safe Alternatives to Base R \code{stats} Functions}{
+#' \subsection{Subsetting and Filtering with \code{filter_terms()}}{
 #' \code{filter_terms()} serves as a declarative, crash-safe replacement for
 #' \code{\link[stats]{drop.terms}}, \code{\link[stats]{delete.response}}, and \code{[.terms}:
 #' \itemize{
-#'   \item \code{filter_terms(x, response = FALSE)} safely removes the response variable
-#'     like \code{stats::delete.response(x)}.
-#'   \item \code{filter_terms(x, drop = ...)} and \code{filter_terms(x, keep = ...)} subset
-#'     specific terms by character label (order-invariant) or numeric index without crashing
-#'     when all terms are dropped.
+#'   \item \strong{Direct Subsetting}: Pass character labels or integer indices to \code{keep}
+#'     (the second argument) or \code{drop} to extract or exclude specific terms (order-invariantly)
+#'     while preserving the intercept and response.
+#'   \item \strong{Structural Filtering}: Use \code{order}, \code{require}, and \code{remove}
+#'     to filter terms by interaction order or constituent variables.
+#'   \item \strong{Response & Intercept Control}: In both \code{as_terms()} and
+#'     \code{filter_terms()}, set \code{response = FALSE} to remove the response variable
+#'     (like \code{stats::delete.response(x)}), pass a new variable name to replace it, or set
+#'     \code{intercept = TRUE} / \code{FALSE} without crashing even when all predictor terms are dropped.
 #' }
 #' }
 #'
 #' @param x,y an object representing model terms: a \code{\link[stats]{terms}} object,
 #'   a \code{\link[stats]{formula}}, a fitted model object, or a character vector.
-#'   In \code{as_terms()}, \code{y} specifies an optional response variable (as a character
-#'   string or language object). In \code{match_labels()}, \code{y} is the target object
-#'   whose term labels are matched against.
-#' @param intercept logical. In \code{as_terms()}, should an intercept be included by default
-#'   when coercing a character vector? Defaults to \code{FALSE}. Explicit tokens in \code{x}
-#'   (such as \code{"1"} or \code{"+1"}) override this default. In \code{filter_terms()},
-#'   whether to retain the intercept of \code{x}.
+#'   In \code{match_labels()}, \code{y} is the target object whose term labels are matched against.
+#' @param response optional response specification for \code{as_terms()} and \code{filter_terms()}.
+#'   If \code{NULL} (default) or \code{TRUE}, retains the existing response of \code{x} (or no
+#'   response if \code{x} is a character vector). If \code{FALSE}, removes the response variable.
+#'   If a character string or language object, sets or replaces the response variable.
+#' @param intercept optional logical for \code{as_terms()} and \code{filter_terms()}.
+#'   If \code{NULL} (default), retains the existing intercept status of \code{x} (or defaults to
+#'   no intercept for character vectors unless explicit tokens like \code{"1"} or \code{"+1"} are
+#'   present in \code{x}). If \code{TRUE} or \code{FALSE}, explicitly forces or removes the intercept.
 #' @param data a \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.
 #' @param keep.order logical. Should terms be kept in their input order rather than sorted by
 #'   interaction order? Defaults to \code{TRUE} for strict term label vectors and \code{FALSE}
 #'   for formulas or length-1 formula shorthands.
 #' @param env an environment to attach to the resulting \code{terms} object when coercing
 #'   from a character vector. Defaults to \code{parent.frame()}.
-#' @param raw logical. If \code{FALSE} (default in \code{get_variables()} and
-#'   \code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
-#'   If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
-#'   raw column names (e.g., \code{"x2"}).
-#' @param each.term logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
-#'   character vector across the whole model. If \code{TRUE}, returns a named list mapping
-#'   each term label to its constituent variables.
 #' @param keep,drop a character vector of term labels (matched order-invariantly via
 #'   \code{match_labels()}) or an integer vector of term indices to explicitly retain
 #'   (\code{keep}) or exclude (\code{drop}) in \code{filter_terms()}.
@@ -84,27 +83,32 @@
 #'   of these variables are retained.
 #' @param remove a character vector of variable names. Any terms containing these variables
 #'   are excluded.
-#' @param response logical. Whether to retain the response variable in \code{filter_terms()}.
-#'   Defaults to \code{TRUE}.
-#' @param strict logical. If \code{TRUE} (default), \code{make_signature()} and
-#'   \code{match_labels()} require each element to be a single valid term.
+#' @param raw logical. If \code{FALSE} (default in \code{get_variables()} and
+#'   \code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
+#'   If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
+#'   raw column names (e.g., \code{"x2"}).
+#' @param by.term logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
+#'   character vector across the whole model. If \code{TRUE}, returns a named list mapping
+#'   each term label to its constituent variables.
 #' @param nomatch character string specifying how to handle unmatched labels in
-#'   \code{match_labels()}: \code{"pass"} (returns \code{NA}), \code{"omit"} (drops
-#'   unmatched elements), or \code{"fail"} (throws an error).
+#'   \code{match_labels()}: \code{"omit"} (default; drops unmatched elements),
+#'   \code{"pass"} (returns \code{NA}), or \code{"fail"} (throws an error).
+#' @param use.names logical. If \code{TRUE} (default), \code{match_labels()} names the output
+#'   vector with the input labels from \code{x}, and \code{get_order()} names the integer
+#'   vector with the model's term labels.
 #' @param ... additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.
 #'
 #' @returns
 #' \itemize{
 #'   \item \code{as_terms()}, \code{filter_terms()}: a \code{\link[stats]{terms}} object.
-#'   \item \code{has_intercept()}, \code{has_response()},
-#'     \code{is_single_term()}, \code{is_fully_crossed()}: a scalar logical (\code{TRUE} or \code{FALSE}).
-#'   \item \code{get_order()}: a named integer vector of term orders.
-#'   \item \code{get_labels()}, \code{make_signature()}, \code{match_labels()}:
-#'     a character vector.
+#'   \item \code{get_labels()}, \code{match_labels()}: a character vector (named by input
+#'     labels in \code{match_labels()} when \code{use.names = TRUE}).
+#'   \item \code{get_order()}: an integer vector of term orders (named when \code{use.names = TRUE}).
+#'   \item \code{get_variables()}: a character vector (when \code{by.term = FALSE}) or
+#'     a named list of character vectors (when \code{by.term = TRUE}).
 #'   \item \code{get_response()}: a character string (when \code{raw = FALSE}), a character
 #'     vector of variable names (when \code{raw = TRUE}), or \code{NULL} if no response exists.
-#'   \item \code{get_variables()}: a character vector (when \code{each.term = FALSE}) or
-#'     a named list of character vectors (when \code{each.term = TRUE}).
+#'   \item \code{has_response()}, \code{has_intercept()}: a scalar logical (\code{TRUE} or \code{FALSE}).
 #' }
 #'
 #' @examples
@@ -113,7 +117,7 @@
 #' get_labels(t1)
 #' has_intercept(t1)
 #'
-#' t2 <- as_terms(".^2", y = "Ozone", data = airquality[, 1:4])
+#' t2 <- as_terms(".^2", response = "Ozone", data = airquality[, 1:4])
 #' get_labels(t2)
 #'
 #' # Extracting labels, variables, and response at three levels
@@ -123,21 +127,22 @@
 #' get_labels(fml)
 #' get_variables(fml, raw = FALSE)
 #' get_variables(fml, raw = TRUE)
-#' get_variables(fml, raw = TRUE, each.term = TRUE)
+#' get_variables(fml, raw = TRUE, by.term = TRUE)
 #'
-#' # Filtering terms by order, variables, or specific term labels
+#' # Subsetting, filtering, and modifying response/intercept
+#' fml |> filter_terms("log(x2):x1")
 #' fml |> filter_terms(order = 1) |> get_labels()
 #' fml |> filter_terms(require = "x2", remove = "x1", raw = TRUE) |> get_labels()
 #' fml |> filter_terms(drop = "log(x2):x1", response = FALSE)
+#' fml |> filter_terms(order = 1, response = "yhat", intercept = FALSE)
 #'
-#' # Signatures and order-invariant label matching
-#' make_signature(c("log(x2):x1", "x1 + x2"))
+#' # Order-invariant label matching
 #' match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
 #' @name modelterms
 NULL
 
 
-# miscellaneous helpers
+# global helpers
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
@@ -146,7 +151,7 @@ add_s <- function(n, noun, suffix = "s") {
 }
 
 
-# internal helpers
+# local helpers
 
 is_strict_label <- function(str) {
   if (is.na(str) || !nzchar(trimws(str))) return(FALSE)
@@ -169,29 +174,71 @@ try_terms <- function(x, ...) {
 }
 
 
+format_labels <- function(x, ...) {
+  if (!is.character(x)) {
+    vlist <- get_variables(x, raw = FALSE, by.term = TRUE, ...)
+    if (length(vlist) == 0L) return(character(0L))
+    return(unname(vapply(vlist, function(v) {
+      paste(sort.int(v), collapse = ":")
+    }, character(1L))))
+  }
+  if (length(x) == 0L) return(character(0L))
+  unname(vapply(x, function(lab) {
+    if (!is_strict_label(lab)) return(NA_character_)
+    obj <- try_terms(lab)
+    if (is.null(obj)) return(NA_character_)
+    vars <- sort.int(get_variables(obj, raw = FALSE))
+    if (length(vars) == 0L) return(NA_character_)
+    paste(vars, collapse = ":")
+  }, character(1L)))
+}
+
+
+# exports
+
 #' @rdname modelterms
 #' @export
 as_terms <- function(
-    x, y = NULL, intercept = FALSE, data = NULL, keep.order = NULL,
+    x, response = NULL, intercept = NULL, data = NULL, keep.order = NULL,
     env = parent.frame(), ...
 ) {
-  if (inherits(x, "terms")) {
-    return(x)
+  # as_terms.default
+  if (isTRUE(response)) {
+    response <- NULL
   }
   if (!is.character(x)) {
-    ko <- keep.order %||% FALSE
-    obj <- tryCatch(
-      stats::terms(x, keep.order = ko, data = data, ...),
-      error = function(e) NULL
-    )
-    if (inherits(obj, "terms")) {
-      return(obj)
+    if (inherits(x, "terms") && is.null(keep.order)) {
+      obj <- x
+    } else {
+      kpo <- keep.order %||% FALSE
+      obj <- tryCatch(
+        stats::terms(x, keep.order = kpo, data = data, ...),
+        error = function(e) NULL
+      )
     }
-    x <- attr(x, "term.labels") %||% (if (is.list(x)) x$term.labels else NULL)
+    if (inherits(obj, "terms")) {
+      if (is.null(response) && is.null(intercept)) {
+        return(obj)
+      }
+      if (missing(env)) {
+        env <- environment(obj) %||% env
+      }
+      x <- attr(obj, "term.labels") %||% character(0L)
+      keep.order <- TRUE
+      response <- response %||% (
+        if (isTRUE(attr(obj, "response") > 0L)) {
+          deparse1(attr(obj, "variables")[[2L]], backtick = TRUE)
+        } else NULL
+      )
+      intercept <- intercept %||% isTRUE(attr(obj, "intercept") > 0L)
+    } else {
+      x <- attr(x, "term.labels") %||% (if (is.list(x)) x$term.labels else NULL)
+    }
     if (!is.character(x)) {
       stop("cannot coerce 'x' to a 'terms' object", call. = FALSE)
     }
   }
+  # as_terms.character
   if (anyNA(x)) {
     stop("'x' must not contain NA values", call. = FALSE)
   }
@@ -208,26 +255,31 @@ as_terms <- function(
       call. = FALSE
     )
   }
-  ko <- keep.order %||% all_strict
-  head_term <- if (intercept) "1" else "-1"
+  rhs <- if (is.null(intercept)) {
+    c("-1", x)
+  } else {
+    c(if (isTRUE(intercept)) "1" else "-1", term_part)
+  }
+  lhs <- if (isFALSE(response)) NULL else response
   fml <- tryCatch(
     stats::reformulate(
-      termlabels = c(head_term, x), response = y, intercept = TRUE, env = env
+      termlabels = rhs, response = lhs, intercept = TRUE, env = env
     ),
     error = function(e) {
       stop("failed to construct a valid formula from 'x'", call. = FALSE)
     }
   )
+  kpo <- keep.order %||% all_strict
   obj <- tryCatch(
-    stats::terms(fml, keep.order = ko, data = data, ...),
+    stats::terms(fml, keep.order = kpo, data = data, ...),
     error = function(e) stop(conditionMessage(e), call. = FALSE)
   )
-  if (all_strict && ko && length(term_part) > 0L) {
-    sigs <- vapply(term_part, function(lbl) {
+  if (kpo && all_strict && length(term_part) > 0L) {
+    keys <- vapply(term_part, function(lbl) {
       ti <- stats::terms(stats::reformulate(c("-1", lbl), intercept = TRUE))
       paste(sort.int(rownames(attr(ti, "factors"))), collapse = "\r")
     }, character(1L))
-    orig_unique <- term_part[!duplicated(sigs)]
+    orig_unique <- term_part[!duplicated(keys)]
     labs <- attr(obj, "term.labels")
     if (length(labs) == length(orig_unique)) {
       attr(obj, "term.labels") <- orig_unique
@@ -242,37 +294,57 @@ as_terms <- function(
 
 #' @rdname modelterms
 #' @export
-has_intercept <- function(x, ...) {
-  isTRUE(attr(as_terms(x, ...), "intercept") > 0L)
-}
-
-
-#' @rdname modelterms
-#' @export
-has_response <- function(x, ...) {
-  isTRUE(attr(as_terms(x, ...), "response") > 0L)
-}
-
-
-#' @rdname modelterms
-#' @export
-get_response <- function(x, raw = FALSE, ...) {
+filter_terms <- function(
+    x, keep = NULL, drop = NULL, order = NULL, require = NULL, remove = NULL,
+    raw = TRUE, response = NULL, intercept = NULL, ...
+) {
   obj <- as_terms(x, ...)
-  if (!has_response(obj)) return(NULL)
-  expr <- attr(obj, "variables")[[2L]]
-  if (raw) {
-    return(all.vars(expr))
+  labs <- get_labels(obj)
+  ok <- rep(TRUE, length(labs))
+  if (length(labs) > 0L) {
+    if (!is.null(order)) {
+      ok <- ok & (attr(obj, "order") %in% order)
+    }
+    if (!is.null(require) || !is.null(remove)) {
+      vlist <- get_variables(obj, raw = raw, by.term = TRUE)
+      if (!is.null(require)) {
+        ok <- ok & vapply(vlist, function(v) any(v %in% require), logical(1L))
+      }
+      if (!is.null(remove)) {
+        ok <- ok & !vapply(vlist, function(v) any(v %in% remove), logical(1L))
+      }
+    }
+    if (!is.null(keep)) {
+      keep_labs <- if (is.numeric(keep)) {
+        labs[keep]
+      } else {
+        match_labels(keep, labs, nomatch = "omit", ...)
+      }
+      ok <- ok & (labs %in% keep_labs)
+    }
+    if (!is.null(drop)) {
+      drop_labs <- if (is.numeric(drop)) {
+        labs[drop]
+      } else {
+        match_labels(drop, labs, nomatch = "omit", ...)
+      }
+      ok <- ok & !(labs %in% drop_labs)
+    }
   }
-  deparse1(expr, backtick = TRUE)
-}
-
-
-#' @rdname modelterms
-#' @export
-get_order <- function(x, ...) {
-  obj <- as_terms(x, ...)
-  ord <- attr(obj, "order") %||% integer(0L)
-  stats::setNames(ord, attr(obj, "term.labels"))
+  if (all(ok) && (is.null(response) || isTRUE(response)) && is.null(intercept)) {
+    return(obj)
+  }
+  as_terms(
+    x = labs[ok],
+    keep.order = TRUE,
+    response = (if (isTRUE(response)) NULL else response) %||% (
+      if (isTRUE(attr(obj, "response") > 0L)) {
+        deparse1(attr(obj, "variables")[[2L]], backtick = TRUE)
+      } else NULL
+    ),
+    intercept = intercept %||% isTRUE(attr(obj, "intercept") > 0L),
+    env = environment(obj) %||% parent.frame()
+  )
 }
 
 
@@ -285,16 +357,58 @@ get_labels <- function(x, ...) {
 
 #' @rdname modelterms
 #' @export
-get_variables <- function(x, raw = FALSE, each.term = FALSE, ...) {
+match_labels <- function(
+    x, y, nomatch = c("omit", "pass", "fail"), use.names = TRUE, ...
+) {
+  nomatch <- match.arg(nomatch)
+  xlabs <- if (is.character(x)) x else get_labels(x, ...)
+  ylabs <- if (is.character(y)) y else get_labels(y, ...)
+  xkeys <- format_labels(xlabs)
+  ykeys <- format_labels(ylabs)
+  idx <- match(xkeys, ykeys, nomatch = NA_integer_, incomparables = NA_character_)
+  out <- ylabs[idx]
+  if (use.names) {
+    names(out) <- xlabs
+  }
+  if (nomatch != "pass" && anyNA(out)) {
+    ng <- is.na(out)
+    if (nomatch == "fail") {
+      stop(
+        add_s(sum(ng), "invalid label"), " found: ",
+        paste0(xlabs[ng], collapse = ", "),
+        call. = FALSE
+      )
+    }
+    out <- out[!ng]
+  }
+  out
+}
+
+
+#' @rdname modelterms
+#' @export
+get_order <- function(x, use.names = TRUE, ...) {
+  obj <- as_terms(x, ...)
+  out <- attr(obj, "order") %||% integer(0L)
+  if (use.names) {
+    names(out) <- attr(obj, "term.labels")
+  }
+  out
+}
+
+
+#' @rdname modelterms
+#' @export
+get_variables <- function(x, raw = FALSE, by.term = FALSE, ...) {
   facs <- attr(as_terms(x, ...), "factors")
   if (is.null(facs) || length(facs) == 0L) {
-    return(if (each.term) stats::setNames(list(), character(0L)) else character(0L))
+    return(if (by.term) stats::setNames(list(), character(0L)) else character(0L))
   }
   vars <- rownames(facs)
   if (raw) {
     raw_map <- lapply(vars, function(v) all.vars(str2lang(v)))
   }
-  if (each.term) {
+  if (by.term) {
     return(apply(facs > 0L, MARGIN = 2L, FUN = function(col) {
       if (raw) {
         unique(unlist(raw_map[col], use.names = FALSE))
@@ -314,128 +428,26 @@ get_variables <- function(x, raw = FALSE, each.term = FALSE, ...) {
 
 #' @rdname modelterms
 #' @export
-filter_terms <- function(
-    x, keep = NULL, drop = NULL, order = NULL, require = NULL, remove = NULL,
-    raw = TRUE, response = TRUE, intercept = TRUE, ...
-) {
+get_response <- function(x, raw = FALSE, ...) {
   obj <- as_terms(x, ...)
-  labs <- get_labels(obj)
-  retain <- rep(TRUE, length(labs))
-  if (length(labs) > 0L) {
-    if (!is.null(order)) {
-      retain <- retain & (attr(obj, "order") %in% order)
-    }
-    if (!is.null(require) || !is.null(remove)) {
-      vlist <- get_variables(obj, raw = raw, each.term = TRUE)
-      if (!is.null(require)) {
-        retain <- retain & vapply(vlist, function(v) any(v %in% require), logical(1L))
-      }
-      if (!is.null(remove)) {
-        retain <- retain & !vapply(vlist, function(v) any(v %in% remove), logical(1L))
-      }
-    }
-    if (!is.null(keep)) {
-      keep_labs <- if (is.numeric(keep)) {
-        labs[keep]
-      } else {
-        match_labels(keep, labs, nomatch = "omit")
-      }
-      retain <- retain & (labs %in% keep_labs)
-    }
-    if (!is.null(drop)) {
-      drop_labs <- if (is.numeric(drop)) {
-        labs[drop]
-      } else {
-        match_labels(drop, labs, nomatch = "omit")
-      }
-      retain <- retain & !(labs %in% drop_labs)
-    }
+  if (!has_response(obj)) return(NULL)
+  expr <- attr(obj, "variables")[[2L]]
+  if (raw) {
+    return(all.vars(expr))
   }
-  if (all(retain) && response && intercept) return(obj)
-  as_terms(
-    x = labs[retain],
-    y = if (response) get_response(obj, raw = FALSE) else NULL,
-    intercept = intercept && has_intercept(obj),
-    keep.order = TRUE,
-    env = environment(obj) %||% parent.frame()
-  )
+  deparse1(expr, backtick = TRUE)
 }
 
 
 #' @rdname modelterms
 #' @export
-is_single_term <- function(x, ...) {
-  if (is.character(x)) {
-    if (length(x) != 1L) return(FALSE)
-    if (...length() == 0L) return(is_strict_label(x))
-  }
-  obj <- try_terms(x, ...)
-  !is.null(obj) && length(get_labels(obj)) == 1L &&
-    (!is.character(x) || !has_intercept(obj))
+has_response <- function(x, ...) {
+  isTRUE(attr(as_terms(x, ...), "response") > 0L)
 }
 
 
 #' @rdname modelterms
 #' @export
-is_fully_crossed <- function(x, ...) {
-  obj <- try_terms(x, ...)
-  if (is.null(obj)) return(FALSE)
-  n <- length(get_variables(obj, raw = FALSE, each.term = FALSE))
-  if (n <= 1L) return(FALSE)
-  length(get_labels(obj)) == (2^n - 1L)
-}
-
-
-#' @rdname modelterms
-#' @export
-make_signature <- function(x, strict = TRUE, ...) {
-  if (!is.character(x) && !strict) {
-    vlist <- get_variables(x, raw = FALSE, each.term = TRUE, ...)
-    if (length(vlist) == 0L) return(character(0L))
-    return(unname(vapply(vlist, function(v) {
-      paste(sort.int(v), collapse = ":")
-    }, character(1L))))
-  }
-  if (!is.character(x)) {
-    x <- get_labels(x, ...)
-  }
-  if (length(x) == 0L) return(character(0L))
-  unname(vapply(x, function(lab) {
-    if (strict) {
-      if (!is_strict_label(lab)) return(NA_character_)
-      obj <- try_terms(lab)
-    } else {
-      obj <- try_terms(lab, ...)
-    }
-    if (is.null(obj)) return(NA_character_)
-    vars <- sort.int(get_variables(obj, raw = FALSE))
-    if (length(vars) == 0L) return(NA_character_)
-    paste(vars, collapse = ":")
-  }, character(1L)))
-}
-
-
-#' @rdname modelterms
-#' @export
-match_labels <- function(
-    x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...
-) {
-  nomatch <- match.arg(nomatch)
-  xlabs <- if (is.character(x)) x else get_labels(x, ...)
-  ylabs <- if (is.character(y)) y else get_labels(y, ...)
-  xsigs <- make_signature(xlabs, strict = strict)
-  ysigs <- make_signature(ylabs, strict = strict)
-  idx <- match(xsigs, ysigs, nomatch = NA_integer_, incomparables = NA_character_)
-  if (nomatch != "pass" && anyNA(idx)) {
-    ng <- is.na(idx)
-    if (nomatch == "fail") {
-      stop(
-        add_s(sum(ng), "invalid label"), " found: ",
-        paste0(xlabs[ng], collapse = ", "),
-        call. = FALSE
-      )
-    }
-    idx <- idx[!ng]
-  }
-  ylabs[idx]
+has_intercept <- function(x, ...) {
+  isTRUE(attr(as_terms(x, ...), "intercept") > 0L)
 }

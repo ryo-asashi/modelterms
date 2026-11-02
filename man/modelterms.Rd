@@ -3,40 +3,25 @@
 \name{modelterms}
 \alias{modelterms}
 \alias{as_terms}
-\alias{has_intercept}
-\alias{has_response}
-\alias{get_response}
-\alias{get_order}
-\alias{get_labels}
-\alias{get_variables}
 \alias{filter_terms}
-\alias{is_single_term}
-\alias{is_fully_crossed}
-\alias{make_signature}
+\alias{get_labels}
 \alias{match_labels}
+\alias{get_order}
+\alias{get_variables}
+\alias{get_response}
+\alias{has_response}
+\alias{has_intercept}
 \title{Coerce, Inspect, Filter, and Match Model Terms and Labels}
 \usage{
 as_terms(
   x,
-  y = NULL,
-  intercept = FALSE,
+  response = NULL,
+  intercept = NULL,
   data = NULL,
   keep.order = NULL,
   env = parent.frame(),
   ...
 )
-
-has_intercept(x, ...)
-
-has_response(x, ...)
-
-get_response(x, raw = FALSE, ...)
-
-get_order(x, ...)
-
-get_labels(x, ...)
-
-get_variables(x, raw = FALSE, each.term = FALSE, ...)
 
 filter_terms(
   x,
@@ -46,30 +31,39 @@ filter_terms(
   require = NULL,
   remove = NULL,
   raw = TRUE,
-  response = TRUE,
-  intercept = TRUE,
+  response = NULL,
+  intercept = NULL,
   ...
 )
 
-is_single_term(x, ...)
+get_labels(x, ...)
 
-is_fully_crossed(x, ...)
+match_labels(x, y, nomatch = c("omit", "pass", "fail"), use.names = TRUE, ...)
 
-make_signature(x, strict = TRUE, ...)
+get_order(x, use.names = TRUE, ...)
 
-match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
+get_variables(x, raw = FALSE, by.term = FALSE, ...)
+
+get_response(x, raw = FALSE, ...)
+
+has_response(x, ...)
+
+has_intercept(x, ...)
 }
 \arguments{
 \item{x, y}{an object representing model terms: a \code{\link[stats]{terms}} object,
 a \code{\link[stats]{formula}}, a fitted model object, or a character vector.
-In \code{as_terms()}, \code{y} specifies an optional response variable (as a character
-string or language object). In \code{match_labels()}, \code{y} is the target object
-whose term labels are matched against.}
+In \code{match_labels()}, \code{y} is the target object whose term labels are matched against.}
 
-\item{intercept}{logical. In \code{as_terms()}, should an intercept be included by default
-when coercing a character vector? Defaults to \code{FALSE}. Explicit tokens in \code{x}
-(such as \code{"1"} or \code{"+1"}) override this default. In \code{filter_terms()},
-whether to retain the intercept of \code{x}.}
+\item{response}{optional response specification for \code{as_terms()} and \code{filter_terms()}.
+If \code{NULL} (default) or \code{TRUE}, retains the existing response of \code{x} (or no
+response if \code{x} is a character vector). If \code{FALSE}, removes the response variable.
+If a character string or language object, sets or replaces the response variable.}
+
+\item{intercept}{optional logical for \code{as_terms()} and \code{filter_terms()}.
+If \code{NULL} (default), retains the existing intercept status of \code{x} (or defaults to
+no intercept for character vectors unless explicit tokens like \code{"1"} or \code{"+1"} are
+present in \code{x}). If \code{TRUE} or \code{FALSE}, explicitly forces or removes the intercept.}
 
 \item{data}{a \code{data.frame} used to resolve \code{.} in formulas or shorthand strings.}
 
@@ -81,15 +75,6 @@ for formulas or length-1 formula shorthands.}
 from a character vector. Defaults to \code{parent.frame()}.}
 
 \item{...}{additional arguments passed to \code{\link[stats]{terms}} or \code{as_terms()}.}
-
-\item{raw}{logical. If \code{FALSE} (default in \code{get_variables()} and
-\code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
-If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
-raw column names (e.g., \code{"x2"}).}
-
-\item{each.term}{logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
-character vector across the whole model. If \code{TRUE}, returns a named list mapping
-each term label to its constituent variables.}
 
 \item{keep, drop}{a character vector of term labels (matched order-invariantly via
 \code{match_labels()}) or an integer vector of term indices to explicitly retain
@@ -104,28 +89,34 @@ of these variables are retained.}
 \item{remove}{a character vector of variable names. Any terms containing these variables
 are excluded.}
 
-\item{response}{logical. Whether to retain the response variable in \code{filter_terms()}.
-Defaults to \code{TRUE}.}
-
-\item{strict}{logical. If \code{TRUE} (default), \code{make_signature()} and
-\code{match_labels()} require each element to be a single valid term.}
+\item{raw}{logical. If \code{FALSE} (default in \code{get_variables()} and
+\code{get_response()}), returns model expressions (e.g., \code{"log(x2)"}).
+If \code{TRUE} (default in \code{filter_terms()}), extracts or filters by underlying
+raw column names (e.g., \code{"x2"}).}
 
 \item{nomatch}{character string specifying how to handle unmatched labels in
-\code{match_labels()}: \code{"pass"} (returns \code{NA}), \code{"omit"} (drops
-unmatched elements), or \code{"fail"} (throws an error).}
+\code{match_labels()}: \code{"omit"} (default; drops unmatched elements),
+\code{"pass"} (returns \code{NA}), or \code{"fail"} (throws an error).}
+
+\item{use.names}{logical. If \code{TRUE} (default), \code{match_labels()} names the output
+vector with the input labels from \code{x}, and \code{get_order()} names the integer
+vector with the model's term labels.}
+
+\item{by.term}{logical. If \code{FALSE} (default), \code{get_variables()} returns a flat
+character vector across the whole model. If \code{TRUE}, returns a named list mapping
+each term label to its constituent variables.}
 }
 \value{
 \itemize{
   \item \code{as_terms()}, \code{filter_terms()}: a \code{\link[stats]{terms}} object.
-  \item \code{has_intercept()}, \code{has_response()},
-    \code{is_single_term()}, \code{is_fully_crossed()}: a scalar logical (\code{TRUE} or \code{FALSE}).
-  \item \code{get_order()}: a named integer vector of term orders.
-  \item \code{get_labels()}, \code{make_signature()}, \code{match_labels()}:
-    a character vector.
+  \item \code{get_labels()}, \code{match_labels()}: a character vector (named by input
+    labels in \code{match_labels()} when \code{use.names = TRUE}).
+  \item \code{get_order()}: an integer vector of term orders (named when \code{use.names = TRUE}).
+  \item \code{get_variables()}: a character vector (when \code{by.term = FALSE}) or
+    a named list of character vectors (when \code{by.term = TRUE}).
   \item \code{get_response()}: a character string (when \code{raw = FALSE}), a character
     vector of variable names (when \code{raw = TRUE}), or \code{NULL} if no response exists.
-  \item \code{get_variables()}: a character vector (when \code{each.term = FALSE}) or
-    a named list of character vectors (when \code{each.term = TRUE}).
+  \item \code{has_response()}, \code{has_intercept()}: a scalar logical (\code{TRUE} or \code{FALSE}).
 }
 }
 \description{
@@ -140,7 +131,7 @@ this package distinguishes three structural levels:
 \enumerate{
   \item \strong{Term Labels} (\code{get_labels(x)}):
     The individual additive components of the model:
-    \code{c("x1", "log(x2)", "I(x1 * x2)", "x1:log(x2)")}.
+    \code{c("x1", "log(x2)", "x1:log(x2)", "I(x1 * x2)")}.
   \item \strong{Model Variables} (\code{get_variables(x, raw = FALSE)}):
     The distinct predictor expressions forming the terms (rows of the \code{"factors"} matrix):
     \code{c("x1", "log(x2)", "I(x1 * x2)")}.
@@ -169,15 +160,19 @@ a vector of strict term labels and a length-1 formula shorthand:
 }
 }
 
-\subsection{Safe Alternatives to Base R \code{stats} Functions}{
+\subsection{Subsetting and Filtering with \code{filter_terms()}}{
 \code{filter_terms()} serves as a declarative, crash-safe replacement for
 \code{\link[stats]{drop.terms}}, \code{\link[stats]{delete.response}}, and \code{[.terms}:
 \itemize{
-  \item \code{filter_terms(x, response = FALSE)} safely removes the response variable
-    like \code{stats::delete.response(x)}.
-  \item \code{filter_terms(x, drop = ...)} and \code{filter_terms(x, keep = ...)} subset
-    specific terms by character label (order-invariant) or numeric index without crashing
-    when all terms are dropped.
+  \item \strong{Direct Subsetting}: Pass character labels or integer indices to \code{keep}
+    (the second argument) or \code{drop} to extract or exclude specific terms (order-invariantly)
+    while preserving the intercept and response.
+  \item \strong{Structural Filtering}: Use \code{order}, \code{require}, and \code{remove}
+    to filter terms by interaction order or constituent variables.
+  \item \strong{Response & Intercept Control}: In both \code{as_terms()} and
+    \code{filter_terms()}, set \code{response = FALSE} to remove the response variable
+    (like \code{stats::delete.response(x)}), pass a new variable name to replace it, or set
+    \code{intercept = TRUE} / \code{FALSE} without crashing even when all predictor terms are dropped.
 }
 }
 }
@@ -187,7 +182,7 @@ t1 <- as_terms(c("b:a", "a", "1"))
 get_labels(t1)
 has_intercept(t1)
 
-t2 <- as_terms(".^2", y = "Ozone", data = airquality[, 1:4])
+t2 <- as_terms(".^2", response = "Ozone", data = airquality[, 1:4])
 get_labels(t2)
 
 # Extracting labels, variables, and response at three levels
@@ -197,14 +192,15 @@ get_response(fml, raw = TRUE)
 get_labels(fml)
 get_variables(fml, raw = FALSE)
 get_variables(fml, raw = TRUE)
-get_variables(fml, raw = TRUE, each.term = TRUE)
+get_variables(fml, raw = TRUE, by.term = TRUE)
 
-# Filtering terms by order, variables, or specific term labels
+# Subsetting, filtering, and modifying response/intercept
+fml |> filter_terms("log(x2):x1")
 fml |> filter_terms(order = 1) |> get_labels()
 fml |> filter_terms(require = "x2", remove = "x1", raw = TRUE) |> get_labels()
 fml |> filter_terms(drop = "log(x2):x1", response = FALSE)
+fml |> filter_terms(order = 1, response = "yhat", intercept = FALSE)
 
-# Signatures and order-invariant label matching
-make_signature(c("log(x2):x1", "x1 + x2"))
+# Order-invariant label matching
 match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
 }

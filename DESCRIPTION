@@ -1,7 +1,7 @@
 Package: modelterms
 Type: Package
 Title: Coerce, Inspect, Filter, and Match Model Terms
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Ryoichi", "Asashiba", email = "ryoichi.asashiba@gmail.com",
            role = c("aut", "cre"), comment = c(ORCID = "0009-0001-9532-7000"))
