@@ -22,7 +22,7 @@ img {
 
     <a class="navbar-brand me-2" href="../index.html">modelterms</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,25 +63,13 @@ vectors of term labels.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">as_terms</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  intercept <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  response <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  intercept <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  keep.order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">has_intercept</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">has_response</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">get_response</span><span class="op">(</span><span class="va">x</span>, raw <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">get_order</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">get_labels</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">get_variables</span><span class="op">(</span><span class="va">x</span>, raw <span class="op">=</span> <span class="cn">FALSE</span>, each.term <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">filter_terms</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
@@ -91,18 +79,24 @@ vectors of term labels.</p>
 <span>  require <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  remove <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  raw <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  response <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  intercept <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  response <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  intercept <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">is_single_term</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">get_labels</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">is_fully_crossed</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">match_labels</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, nomatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"omit"</span>, <span class="st">"pass"</span>, <span class="st">"fail"</span><span class="op">)</span>, use.names <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">make_signature</span><span class="op">(</span><span class="va">x</span>, strict <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">get_order</span><span class="op">(</span><span class="va">x</span>, use.names <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">match_labels</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, strict <span class="op">=</span> <span class="cn">TRUE</span>, nomatch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pass"</span>, <span class="st">"omit"</span>, <span class="st">"fail"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">get_variables</span><span class="op">(</span><span class="va">x</span>, raw <span class="op">=</span> <span class="cn">FALSE</span>, by.term <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">get_response</span><span class="op">(</span><span class="va">x</span>, raw <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">has_response</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">has_intercept</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -112,16 +106,21 @@ vectors of term labels.</p>
 <dl><dt id="arg-x-y">x, y<a class="anchor" aria-label="anchor" href="#arg-x-y"></a></dt>
 <dd><p>an object representing model terms: a <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></code> object,
 a <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></code>, a fitted model object, or a character vector.
-In <code>as_terms()</code>, <code>y</code> specifies an optional response variable (as a character
-string or language object). In <code>match_labels()</code>, <code>y</code> is the target object
-whose term labels are matched against.</p></dd>
+In <code>match_labels()</code>, <code>y</code> is the target object whose term labels are matched against.</p></dd>
+
+
+<dt id="arg-response">response<a class="anchor" aria-label="anchor" href="#arg-response"></a></dt>
+<dd><p>optional response specification for <code>as_terms()</code> and <code>filter_terms()</code>.
+If <code>NULL</code> (default) or <code>TRUE</code>, retains the existing response of <code>x</code> (or no
+response if <code>x</code> is a character vector). If <code>FALSE</code>, removes the response variable.
+If a character string or language object, sets or replaces the response variable.</p></dd>
 
 
 <dt id="arg-intercept">intercept<a class="anchor" aria-label="anchor" href="#arg-intercept"></a></dt>
-<dd><p>logical. In <code>as_terms()</code>, should an intercept be included by default
-when coercing a character vector? Defaults to <code>FALSE</code>. Explicit tokens in <code>x</code>
-(such as <code>"1"</code> or <code>"+1"</code>) override this default. In <code>filter_terms()</code>,
-whether to retain the intercept of <code>x</code>.</p></dd>
+<dd><p>optional logical for <code>as_terms()</code> and <code>filter_terms()</code>.
+If <code>NULL</code> (default), retains the existing intercept status of <code>x</code> (or defaults to
+no intercept for character vectors unless explicit tokens like <code>"1"</code> or <code>"+1"</code> are
+present in <code>x</code>). If <code>TRUE</code> or <code>FALSE</code>, explicitly forces or removes the intercept.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
@@ -141,19 +140,6 @@ from a character vector. Defaults to <code><a href="https://rdrr.io/r/base/sys.p
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>additional arguments passed to <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></code> or <code>as_terms()</code>.</p></dd>
-
-
-<dt id="arg-raw">raw<a class="anchor" aria-label="anchor" href="#arg-raw"></a></dt>
-<dd><p>logical. If <code>FALSE</code> (default in <code>get_variables()</code> and
-<code>get_response()</code>), returns model expressions (e.g., <code>"log(x2)"</code>).
-If <code>TRUE</code> (default in <code>filter_terms()</code>), extracts or filters by underlying
-raw column names (e.g., <code>"x2"</code>).</p></dd>
-
-
-<dt id="arg-each-term">each.term<a class="anchor" aria-label="anchor" href="#arg-each-term"></a></dt>
-<dd><p>logical. If <code>FALSE</code> (default), <code>get_variables()</code> returns a flat
-character vector across the whole model. If <code>TRUE</code>, returns a named list mapping
-each term label to its constituent variables.</p></dd>
 
 
 <dt id="arg-keep-drop">keep, drop<a class="anchor" aria-label="anchor" href="#arg-keep-drop"></a></dt>
@@ -177,35 +163,43 @@ of these variables are retained.</p></dd>
 are excluded.</p></dd>
 
 
-<dt id="arg-response">response<a class="anchor" aria-label="anchor" href="#arg-response"></a></dt>
-<dd><p>logical. Whether to retain the response variable in <code>filter_terms()</code>.
-Defaults to <code>TRUE</code>.</p></dd>
-
-
-<dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
-<dd><p>logical. If <code>TRUE</code> (default), <code>make_signature()</code> and
-<code>match_labels()</code> require each element to be a single valid term.</p></dd>
+<dt id="arg-raw">raw<a class="anchor" aria-label="anchor" href="#arg-raw"></a></dt>
+<dd><p>logical. If <code>FALSE</code> (default in <code>get_variables()</code> and
+<code>get_response()</code>), returns model expressions (e.g., <code>"log(x2)"</code>).
+If <code>TRUE</code> (default in <code>filter_terms()</code>), extracts or filters by underlying
+raw column names (e.g., <code>"x2"</code>).</p></dd>
 
 
 <dt id="arg-nomatch">nomatch<a class="anchor" aria-label="anchor" href="#arg-nomatch"></a></dt>
 <dd><p>character string specifying how to handle unmatched labels in
-<code>match_labels()</code>: <code>"pass"</code> (returns <code>NA</code>), <code>"omit"</code> (drops
-unmatched elements), or <code>"fail"</code> (throws an error).</p></dd>
+<code>match_labels()</code>: <code>"omit"</code> (default; drops unmatched elements),
+<code>"pass"</code> (returns <code>NA</code>), or <code>"fail"</code> (throws an error).</p></dd>
+
+
+<dt id="arg-use-names">use.names<a class="anchor" aria-label="anchor" href="#arg-use-names"></a></dt>
+<dd><p>logical. If <code>TRUE</code> (default), <code>match_labels()</code> names the output
+vector with the input labels from <code>x</code>, and <code>get_order()</code> names the integer
+vector with the model's term labels.</p></dd>
+
+
+<dt id="arg-by-term">by.term<a class="anchor" aria-label="anchor" href="#arg-by-term"></a></dt>
+<dd><p>logical. If <code>FALSE</code> (default), <code>get_variables()</code> returns a flat
+character vector across the whole model. If <code>TRUE</code>, returns a named list mapping
+each term label to its constituent variables.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
 
 <ul><li><p><code>as_terms()</code>, <code>filter_terms()</code>: a <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></code> object.</p></li>
-<li><p><code>has_intercept()</code>, <code>has_response()</code>,
-    <code>is_single_term()</code>, <code>is_fully_crossed()</code>: a scalar logical (<code>TRUE</code> or <code>FALSE</code>).</p></li>
-<li><p><code>get_order()</code>: a named integer vector of term orders.</p></li>
-<li><p><code>get_labels()</code>, <code>make_signature()</code>, <code>match_labels()</code>:
-    a character vector.</p></li>
+<li><p><code>get_labels()</code>, <code>match_labels()</code>: a character vector (named by input
+    labels in <code>match_labels()</code> when <code>use.names = TRUE</code>).</p></li>
+<li><p><code>get_order()</code>: an integer vector of term orders (named when <code>use.names = TRUE</code>).</p></li>
+<li><p><code>get_variables()</code>: a character vector (when <code>by.term = FALSE</code>) or
+    a named list of character vectors (when <code>by.term = TRUE</code>).</p></li>
 <li><p><code>get_response()</code>: a character string (when <code>raw = FALSE</code>), a character
     vector of variable names (when <code>raw = TRUE</code>), or <code>NULL</code> if no response exists.</p></li>
-<li><p><code>get_variables()</code>: a character vector (when <code>each.term = FALSE</code>) or
-    a named list of character vectors (when <code>each.term = TRUE</code>).</p></li>
+<li><p><code>has_response()</code>, <code>has_intercept()</code>: a scalar logical (<code>TRUE</code> or <code>FALSE</code>).</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -215,7 +209,7 @@ unmatched elements), or <code>"fail"</code> (throws an error).</p></dd>
 <p>For a model formula such as <code>y ~ x1 + log(x2) + x1:log(x2) + I(x1 * x2)</code>,
 this package distinguishes three structural levels:</p><ol><li><p><strong>Term Labels</strong> (<code>get_labels(x)</code>):
     The individual additive components of the model:
-    <code>c("x1", "log(x2)", "I(x1 * x2)", "x1:log(x2)")</code>.</p></li>
+    <code>c("x1", "log(x2)", "x1:log(x2)", "I(x1 * x2)")</code>.</p></li>
 <li><p><strong>Model Variables</strong> (<code>get_variables(x, raw = FALSE)</code>):
     The distinct predictor expressions forming the terms (rows of the <code>"factors"</code> matrix):
     <code>c("x1", "log(x2)", "I(x1 * x2)")</code>.</p></li>
@@ -242,13 +236,17 @@ a vector of strict term labels and a length-1 formula shorthand:</p><ul><li><p><
 </ul></div>
 
 <div class="section">
-<h3 id="safe-alternatives-to-base-r-stats-functions">Safe Alternatives to Base R <code>stats</code> Functions<a class="anchor" aria-label="anchor" href="#safe-alternatives-to-base-r-stats-functions"></a></h3>
+<h3 id="subsetting-and-filtering-with-filter-terms-">Subsetting and Filtering with <code>filter_terms()</code><a class="anchor" aria-label="anchor" href="#subsetting-and-filtering-with-filter-terms-"></a></h3>
 <p><code>filter_terms()</code> serves as a declarative, crash-safe replacement for
-<code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">drop.terms</a></code>, <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">delete.response</a></code>, and <code>[.terms</code>:</p><ul><li><p><code>filter_terms(x, response = FALSE)</code> safely removes the response variable
-    like <code>stats::delete.response(x)</code>.</p></li>
-<li><p><code>filter_terms(x, drop = ...)</code> and <code>filter_terms(x, keep = ...)</code> subset
-    specific terms by character label (order-invariant) or numeric index without crashing
-    when all terms are dropped.</p></li>
+<code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">drop.terms</a></code>, <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">delete.response</a></code>, and <code>[.terms</code>:</p><ul><li><p><strong>Direct Subsetting</strong>: Pass character labels or integer indices to <code>keep</code>
+    (the second argument) or <code>drop</code> to extract or exclude specific terms (order-invariantly)
+    while preserving the intercept and response.</p></li>
+<li><p><strong>Structural Filtering</strong>: Use <code>order</code>, <code>require</code>, and <code>remove</code>
+    to filter terms by interaction order or constituent variables.</p></li>
+<li><p><strong>Response &amp; Intercept Control</strong>: In both <code>as_terms()</code> and
+    <code>filter_terms()</code>, set <code>response = FALSE</code> to remove the response variable
+    (like <code>stats::delete.response(x)</code>), pass a new variable name to replace it, or set
+    <code>intercept = TRUE</code> / <code>FALSE</code> without crashing even when all predictor terms are dropped.</p></li>
 </ul></div>
 
     </div>
@@ -262,7 +260,7 @@ a vector of strict term labels and a length-1 formula shorthand:</p><ul><li><p><
 <span class="r-in"><span><span class="fu">has_intercept</span><span class="op">(</span><span class="va">t1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu">as_terms</span><span class="op">(</span><span class="st">".^2"</span>, y <span class="op">=</span> <span class="st">"Ozone"</span>, data <span class="op">=</span> <span class="va">airquality</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu">as_terms</span><span class="op">(</span><span class="st">".^2"</span>, response <span class="op">=</span> <span class="st">"Ozone"</span>, data <span class="op">=</span> <span class="va">airquality</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">get_labels</span><span class="op">(</span><span class="va">t2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Solar.R"      "Wind"         "Temp"         "Solar.R:Wind" "Solar.R:Temp"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6] "Wind:Temp"   </span>
@@ -279,7 +277,7 @@ a vector of strict term labels and a length-1 formula shorthand:</p><ul><li><p><
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1"         "log(x2)"    "I(x1 * x2)"</span>
 <span class="r-in"><span><span class="fu">get_variables</span><span class="op">(</span><span class="va">fml</span>, raw <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1" "x2"</span>
-<span class="r-in"><span><span class="fu">get_variables</span><span class="op">(</span><span class="va">fml</span>, raw <span class="op">=</span> <span class="cn">TRUE</span>, each.term <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_variables</span><span class="op">(</span><span class="va">fml</span>, raw <span class="op">=</span> <span class="cn">TRUE</span>, by.term <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -293,7 +291,26 @@ a vector of strict term labels and a length-1 formula shorthand:</p><ul><li><p><
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1" "x2"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Filtering terms by order, variables, or specific term labels</span></span></span>
+<span class="r-in"><span><span class="co"># Subsetting, filtering, and modifying response/intercept</span></span></span>
+<span class="r-in"><span><span class="va">fml</span> <span class="op">|&gt;</span> <span class="fu">filter_terms</span><span class="op">(</span><span class="st">"log(x2):x1"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> log(y) ~ 1 + x1:log(x2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"variables")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list(log(y), x1, log(x2))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"factors")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         x1:log(x2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> log(y)           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1               2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> log(x2)          2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"term.labels")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1:log(x2)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"order")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"intercept")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"response")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,".Environment")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5c37e20165d0&gt;</span>
 <span class="r-in"><span><span class="va">fml</span> <span class="op">|&gt;</span> <span class="fu">filter_terms</span><span class="op">(</span>order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">get_labels</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1"         "log(x2)"    "I(x1 * x2)"</span>
 <span class="r-in"><span><span class="va">fml</span> <span class="op">|&gt;</span> <span class="fu">filter_terms</span><span class="op">(</span>require <span class="op">=</span> <span class="st">"x2"</span>, remove <span class="op">=</span> <span class="st">"x1"</span>, raw <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">get_labels</span><span class="op">(</span><span class="op">)</span></span></span>
@@ -316,13 +333,32 @@ a vector of strict term labels and a length-1 formula shorthand:</p><ul><li><p><
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"response")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,".Environment")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5f32d1b3d848&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5c37e20165d0&gt;</span>
+<span class="r-in"><span><span class="va">fml</span> <span class="op">|&gt;</span> <span class="fu">filter_terms</span><span class="op">(</span>order <span class="op">=</span> <span class="fl">1</span>, response <span class="op">=</span> <span class="st">"yhat"</span>, intercept <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> yhat ~ -1 + x1 + log(x2) + I(x1 * x2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"variables")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list(yhat, x1, log(x2), I(x1 * x2))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"factors")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            x1 log(x2) I(x1 * x2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> yhat        0       0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1          1       0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> log(x2)     0       1          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> I(x1 * x2)  0       0          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"term.labels")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1"         "log(x2)"    "I(x1 * x2)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"order")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"intercept")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"response")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,".Environment")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5c37e20165d0&gt;</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Signatures and order-invariant label matching</span></span></span>
-<span class="r-in"><span><span class="fu">make_signature</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log(x2):x1"</span>, <span class="st">"x1 + x2"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "log(x2):x1" NA          </span>
+<span class="r-in"><span><span class="co"># Order-invariant label matching</span></span></span>
 <span class="r-in"><span><span class="fu">match_labels</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"log(x2):x1"</span>, <span class="st">"I(x2 * x1)"</span><span class="op">)</span>, <span class="va">fml</span>, nomatch <span class="op">=</span> <span class="st">"pass"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x1"         "x1:log(x2)" NA          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           x1   log(x2):x1   I(x2 * x1) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         "x1" "x1:log(x2)"           NA </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

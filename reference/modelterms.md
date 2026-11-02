@@ -9,25 +9,13 @@ formulas, fitted models, and character vectors of term labels.
 ``` r
 as_terms(
   x,
-  y = NULL,
-  intercept = FALSE,
+  response = NULL,
+  intercept = NULL,
   data = NULL,
   keep.order = NULL,
   env = parent.frame(),
   ...
 )
-
-has_intercept(x, ...)
-
-has_response(x, ...)
-
-get_response(x, raw = FALSE, ...)
-
-get_order(x, ...)
-
-get_labels(x, ...)
-
-get_variables(x, raw = FALSE, each.term = FALSE, ...)
 
 filter_terms(
   x,
@@ -37,18 +25,24 @@ filter_terms(
   require = NULL,
   remove = NULL,
   raw = TRUE,
-  response = TRUE,
-  intercept = TRUE,
+  response = NULL,
+  intercept = NULL,
   ...
 )
 
-is_single_term(x, ...)
+get_labels(x, ...)
 
-is_fully_crossed(x, ...)
+match_labels(x, y, nomatch = c("omit", "pass", "fail"), use.names = TRUE, ...)
 
-make_signature(x, strict = TRUE, ...)
+get_order(x, use.names = TRUE, ...)
 
-match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
+get_variables(x, raw = FALSE, by.term = FALSE, ...)
+
+get_response(x, raw = FALSE, ...)
+
+has_response(x, ...)
+
+has_intercept(x, ...)
 ```
 
 ## Arguments
@@ -58,17 +52,24 @@ match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
   an object representing model terms: a
   [`terms`](https://rdrr.io/r/stats/terms.html) object, a
   [`formula`](https://rdrr.io/r/stats/formula.html), a fitted model
-  object, or a character vector. In `as_terms()`, `y` specifies an
-  optional response variable (as a character string or language object).
-  In `match_labels()`, `y` is the target object whose term labels are
-  matched against.
+  object, or a character vector. In `match_labels()`, `y` is the target
+  object whose term labels are matched against.
+
+- response:
+
+  optional response specification for `as_terms()` and `filter_terms()`.
+  If `NULL` (default) or `TRUE`, retains the existing response of `x`
+  (or no response if `x` is a character vector). If `FALSE`, removes the
+  response variable. If a character string or language object, sets or
+  replaces the response variable.
 
 - intercept:
 
-  logical. In `as_terms()`, should an intercept be included by default
-  when coercing a character vector? Defaults to `FALSE`. Explicit tokens
-  in `x` (such as `"1"` or `"+1"`) override this default. In
-  `filter_terms()`, whether to retain the intercept of `x`.
+  optional logical for `as_terms()` and `filter_terms()`. If `NULL`
+  (default), retains the existing intercept status of `x` (or defaults
+  to no intercept for character vectors unless explicit tokens like
+  `"1"` or `"+1"` are present in `x`). If `TRUE` or `FALSE`, explicitly
+  forces or removes the intercept.
 
 - data:
 
@@ -90,19 +91,6 @@ match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
 
   additional arguments passed to
   [`terms`](https://rdrr.io/r/stats/terms.html) or `as_terms()`.
-
-- raw:
-
-  logical. If `FALSE` (default in `get_variables()` and
-  `get_response()`), returns model expressions (e.g., `"log(x2)"`). If
-  `TRUE` (default in `filter_terms()`), extracts or filters by
-  underlying raw column names (e.g., `"x2"`).
-
-- each.term:
-
-  logical. If `FALSE` (default), `get_variables()` returns a flat
-  character vector across the whole model. If `TRUE`, returns a named
-  list mapping each term label to its constituent variables.
 
 - keep, drop:
 
@@ -126,41 +114,51 @@ match_labels(x, y, strict = TRUE, nomatch = c("pass", "omit", "fail"), ...)
   a character vector of variable names. Any terms containing these
   variables are excluded.
 
-- response:
+- raw:
 
-  logical. Whether to retain the response variable in `filter_terms()`.
-  Defaults to `TRUE`.
-
-- strict:
-
-  logical. If `TRUE` (default), `make_signature()` and `match_labels()`
-  require each element to be a single valid term.
+  logical. If `FALSE` (default in `get_variables()` and
+  `get_response()`), returns model expressions (e.g., `"log(x2)"`). If
+  `TRUE` (default in `filter_terms()`), extracts or filters by
+  underlying raw column names (e.g., `"x2"`).
 
 - nomatch:
 
   character string specifying how to handle unmatched labels in
-  `match_labels()`: `"pass"` (returns `NA`), `"omit"` (drops unmatched
-  elements), or `"fail"` (throws an error).
+  `match_labels()`: `"omit"` (default; drops unmatched elements),
+  `"pass"` (returns `NA`), or `"fail"` (throws an error).
+
+- use.names:
+
+  logical. If `TRUE` (default), `match_labels()` names the output vector
+  with the input labels from `x`, and `get_order()` names the integer
+  vector with the model's term labels.
+
+- by.term:
+
+  logical. If `FALSE` (default), `get_variables()` returns a flat
+  character vector across the whole model. If `TRUE`, returns a named
+  list mapping each term label to its constituent variables.
 
 ## Value
 
 - `as_terms()`, `filter_terms()`: a
   [`terms`](https://rdrr.io/r/stats/terms.html) object.
 
-- `has_intercept()`, `has_response()`, `is_single_term()`,
-  `is_fully_crossed()`: a scalar logical (`TRUE` or `FALSE`).
+- `get_labels()`, `match_labels()`: a character vector (named by input
+  labels in `match_labels()` when `use.names = TRUE`).
 
-- `get_order()`: a named integer vector of term orders.
+- `get_order()`: an integer vector of term orders (named when
+  `use.names = TRUE`).
 
-- `get_labels()`, `make_signature()`, `match_labels()`: a character
-  vector.
+- `get_variables()`: a character vector (when `by.term = FALSE`) or a
+  named list of character vectors (when `by.term = TRUE`).
 
 - `get_response()`: a character string (when `raw = FALSE`), a character
   vector of variable names (when `raw = TRUE`), or `NULL` if no response
   exists.
 
-- `get_variables()`: a character vector (when `each.term = FALSE`) or a
-  named list of character vectors (when `each.term = TRUE`).
+- `has_response()`, `has_intercept()`: a scalar logical (`TRUE` or
+  `FALSE`).
 
 ## Details
 
@@ -172,7 +170,7 @@ three structural levels:
 
 1.  **Term Labels** (`get_labels(x)`): The individual additive
     components of the model:
-    `c("x1", "log(x2)", "I(x1 * x2)", "x1:log(x2)")`.
+    `c("x1", "log(x2)", "x1:log(x2)", "I(x1 * x2)")`.
 
 2.  **Model Variables** (`get_variables(x, raw = FALSE)`): The distinct
     predictor expressions forming the terms (rows of the `"factors"`
@@ -202,19 +200,25 @@ vector of strict term labels and a length-1 formula shorthand:
   more and contains any non-single-term expression (such as
   `c("a * b", "c")` or `c(".", "a")`), an informative error is thrown.
 
-### Safe Alternatives to Base R `stats` Functions
+### Subsetting and Filtering with `filter_terms()`
 
 `filter_terms()` serves as a declarative, crash-safe replacement for
 [`drop.terms`](https://rdrr.io/r/stats/delete.response.html),
 [`delete.response`](https://rdrr.io/r/stats/delete.response.html), and
 `[.terms`:
 
-- `filter_terms(x, response = FALSE)` safely removes the response
-  variable like `stats::delete.response(x)`.
+- **Direct Subsetting**: Pass character labels or integer indices to
+  `keep` (the second argument) or `drop` to extract or exclude specific
+  terms (order-invariantly) while preserving the intercept and response.
 
-- `filter_terms(x, drop = ...)` and `filter_terms(x, keep = ...)` subset
-  specific terms by character label (order-invariant) or numeric index
-  without crashing when all terms are dropped.
+- **Structural Filtering**: Use `order`, `require`, and `remove` to
+  filter terms by interaction order or constituent variables.
+
+- **Response & Intercept Control**: In both `as_terms()` and
+  `filter_terms()`, set `response = FALSE` to remove the response
+  variable (like `stats::delete.response(x)`), pass a new variable name
+  to replace it, or set `intercept = TRUE` / `FALSE` without crashing
+  even when all predictor terms are dropped.
 
 ## Examples
 
@@ -226,7 +230,7 @@ get_labels(t1)
 has_intercept(t1)
 #> [1] TRUE
 
-t2 <- as_terms(".^2", y = "Ozone", data = airquality[, 1:4])
+t2 <- as_terms(".^2", response = "Ozone", data = airquality[, 1:4])
 get_labels(t2)
 #> [1] "Solar.R"      "Wind"         "Temp"         "Solar.R:Wind" "Solar.R:Temp"
 #> [6] "Wind:Temp"   
@@ -243,7 +247,7 @@ get_variables(fml, raw = FALSE)
 #> [1] "x1"         "log(x2)"    "I(x1 * x2)"
 get_variables(fml, raw = TRUE)
 #> [1] "x1" "x2"
-get_variables(fml, raw = TRUE, each.term = TRUE)
+get_variables(fml, raw = TRUE, by.term = TRUE)
 #> $x1
 #> [1] "x1"
 #> 
@@ -257,7 +261,26 @@ get_variables(fml, raw = TRUE, each.term = TRUE)
 #> [1] "x1" "x2"
 #> 
 
-# Filtering terms by order, variables, or specific term labels
+# Subsetting, filtering, and modifying response/intercept
+fml |> filter_terms("log(x2):x1")
+#> log(y) ~ 1 + x1:log(x2)
+#> attr(,"variables")
+#> list(log(y), x1, log(x2))
+#> attr(,"factors")
+#>         x1:log(x2)
+#> log(y)           0
+#> x1               2
+#> log(x2)          2
+#> attr(,"term.labels")
+#> [1] "x1:log(x2)"
+#> attr(,"order")
+#> [1] 2
+#> attr(,"intercept")
+#> [1] 1
+#> attr(,"response")
+#> [1] 1
+#> attr(,".Environment")
+#> <environment: 0x5c37e20165d0>
 fml |> filter_terms(order = 1) |> get_labels()
 #> [1] "x1"         "log(x2)"    "I(x1 * x2)"
 fml |> filter_terms(require = "x2", remove = "x1", raw = TRUE) |> get_labels()
@@ -280,11 +303,30 @@ fml |> filter_terms(drop = "log(x2):x1", response = FALSE)
 #> attr(,"response")
 #> [1] 0
 #> attr(,".Environment")
-#> <environment: 0x5f32d1b3d848>
+#> <environment: 0x5c37e20165d0>
+fml |> filter_terms(order = 1, response = "yhat", intercept = FALSE)
+#> yhat ~ -1 + x1 + log(x2) + I(x1 * x2)
+#> attr(,"variables")
+#> list(yhat, x1, log(x2), I(x1 * x2))
+#> attr(,"factors")
+#>            x1 log(x2) I(x1 * x2)
+#> yhat        0       0          0
+#> x1          1       0          0
+#> log(x2)     0       1          0
+#> I(x1 * x2)  0       0          1
+#> attr(,"term.labels")
+#> [1] "x1"         "log(x2)"    "I(x1 * x2)"
+#> attr(,"order")
+#> [1] 1 1 1
+#> attr(,"intercept")
+#> [1] 0
+#> attr(,"response")
+#> [1] 1
+#> attr(,".Environment")
+#> <environment: 0x5c37e20165d0>
 
-# Signatures and order-invariant label matching
-make_signature(c("log(x2):x1", "x1 + x2"))
-#> [1] "log(x2):x1" NA          
+# Order-invariant label matching
 match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
-#> [1] "x1"         "x1:log(x2)" NA          
+#>           x1   log(x2):x1   I(x2 * x1) 
+#>         "x1" "x1:log(x2)"           NA 
 ```

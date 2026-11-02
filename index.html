@@ -35,7 +35,7 @@ img {
 
     <a class="navbar-brand me-2" href="index.html">modelterms</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,13 +71,12 @@ img {
 </h1></div>
 <!-- badges: start -->
 
-<!-- badges: end -->
 <p><strong>modelterms</strong> is a lightweight, zero-dependency R package providing a unified interface for manipulating <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">stats::terms</a></code> objects, formulas, fitted models, and character vectors of term labels.</p>
-<p>It is designed both as a standalone utility for statistical modeling workflows and as a helper module for other packages (including future versions of <a href="https://github.com/ryo-asashiba/midr" class="external-link"><strong>midr</strong></a>).</p>
+<p>It is designed both as a standalone utility for statistical modeling workflows and as a core infrastructure module for other packages (including <a href="https://github.com/ryo-asashi/midr" class="external-link"><strong>midr</strong></a>).</p>
 <div class="section level2">
 <h2 id="why-modelterms">Why <strong>modelterms</strong>?<a class="anchor" aria-label="anchor" href="#why-modelterms"></a>
 </h2>
-<p>In R, model terms serve as the structural blueprint for predictive model, a role of paramount importance for additive models built with <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">stats::lm()</a></code>, <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code>, or GAMs. However, the term “terms” has historically suffered from ambiguity. For instance, it appears as the <code>terms</code> argument in <code><a href="https://rdrr.io/r/stats/predict.lm.html" class="external-link">stats::predict.lm()</a></code> which accepts character vectors of additive components, whereas the <code>"terms"</code> objects stored inside fitted models are formula packed with complex attributes, not character vectors, and they are not interchangeable.</p>
+<p>In R, model terms serve as the structural blueprint for predictive models—a role of paramount importance in additive models built with <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">stats::lm()</a></code>, <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code>, or GAMs. However, the word “terms” has historically suffered from ambiguity in R. For instance, the <code>terms</code> argument in <code><a href="https://rdrr.io/r/stats/predict.lm.html" class="external-link">stats::predict.lm()</a></code> expects a character vector of term labels, whereas the <code>"terms"</code> object stored inside a fitted model is a formula-like object packed with complex attributes. Despite representing the same structural concepts, they are not directly interchangeable.</p>
 <p>Furthermore, while Base R’s <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">stats::terms()</a></code> and <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">stats::drop.terms()</a></code> provide powerful formula parsing, working with them programmatically often involves sharp edges:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -85,9 +84,9 @@ img {
 <li>
 <strong>Unwanted Reordering &amp; Renaming</strong>: Even with <code>keep.order = TRUE</code>, <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">stats::terms()</a></code> silently rewrites interaction labels based on variable appearance order (e.g., turning <code>c("a", "b:a")</code> into <code>c("a", "a:b")</code>).</li>
 <li>
-<strong>Fragile Subsetting</strong>: <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">stats::drop.terms()</a></code> requires numeric indices, loses the response variable by default, and crashes if all terms are dropped.</li>
+<strong>Fragile Subsetting</strong>: <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">stats::drop.terms()</a></code> requires numeric indices, loses the response variable by default, and crashes when all predictor terms are dropped.</li>
 <li>
-<strong>Ambiguous “Variables”</strong>: Base R lacks a unified way to distinguish between <em>term labels</em> (term names in additive models, e.g., <code>"x1:log(x2)"</code>), <em>model variables</em> (transformed variable names in formula, e.g., <code>"log(x2)"</code>), and underlying <em>raw variables</em> (column names in data.frame, e.g., <code>"x2"</code>).</li>
+<strong>Ambiguous “Variables”</strong>: Base R lacks a unified API to distinguish between <em>term labels</em> (additive components, e.g., <code>"x1:log(x2)"</code>), <em>model variables</em> (transformed expressions in a formula, e.g., <code>"log(x2)"</code>), and underlying <em>raw variables</em> (column names in a <code>data.frame</code>, e.g., <code>"x2"</code>).</li>
 </ol>
 <p><strong>modelterms</strong> resolves all of these issues with a clean, pipe-friendly functional API.</p>
 </div>
@@ -97,12 +96,12 @@ img {
 <p>You can install the development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="co"># pak::pak("ryo-asashi/modelterms")</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"ryo-asashi/modelterms"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="core-concepts-three-levels-of-model-components">Core Concepts: Three Levels of Model Components<a class="anchor" aria-label="anchor" href="#core-concepts-three-levels-of-model-components"></a>
 </h2>
-<p>Consider the formula <code>y ~ x1 + log(x2) + x1:log(x2) + I(x1 * x2)</code>. This package clearly distinguishes three structural levels:</p>
+<p>Consider the formula <code>y ~ x1 + log(x2) + x1:log(x2) + I(x1 * x2)</code>. <strong>modelterms</strong> clearly distinguishes three structural levels:</p>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -138,7 +137,23 @@ img {
 </tr>
 </tbody>
 </table>
-<p>Setting <code>each.term = TRUE</code> in <code><a href="reference/modelterms.html">get_variables()</a></code> returns a named list mapping each term label to its constituent variables.</p>
+<p>Setting <code>by.term = TRUE</code> in <code><a href="reference/modelterms.html">get_variables()</a></code> returns a named list mapping each term label to its constituent variables:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryo-asashi/modelterms" class="external-link">modelterms</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fml_demo</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="op">+</span> <span class="va">x1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">x1</span> <span class="op">*</span> <span class="va">x2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/modelterms.html">get_variables</a></span><span class="op">(</span><span class="va">fml_demo</span>, raw <span class="op">=</span> <span class="cn">TRUE</span>, by.term <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $x1</span></span>
+<span><span class="co">#&gt; [1] "x1"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`log(x2)`</span></span>
+<span><span class="co">#&gt; [1] "x2"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`I(x1 * x2)`</span></span>
+<span><span class="co">#&gt; [1] "x1" "x2"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`x1:log(x2)`</span></span>
+<span><span class="co">#&gt; [1] "x1" "x2"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage-examples">Usage Examples<a class="anchor" aria-label="anchor" href="#usage-examples"></a>
@@ -147,17 +162,15 @@ img {
 <h3 id="id_1-flexible-and-safe-coercion-with-as_terms">1. Flexible and Safe Coercion with <code>as_terms()</code>
 <a class="anchor" aria-label="anchor" href="#id_1-flexible-and-safe-coercion-with-as_terms"></a>
 </h3>
-<p><code><a href="reference/modelterms.html">as_terms()</a></code> accepts <code>terms</code> objects, formulas, fitted models (<code>lm</code>, <code>glm</code>, etc.), or character vectors.</p>
+<p><code><a href="reference/modelterms.html">as_terms()</a></code> seamlessly converts <code>terms</code> objects, formulas, fitted models (<code>lm</code>, <code>glm</code>, etc.), or character vectors into a valid <code><a href="https://rdrr.io/r/stats/terms.html" class="external-link">stats::terms</a></code> object, while allowing on-the-fly modification of the response variable and intercept.</p>
 <ul>
 <li>
 <strong>Strict Term Label Vectors (<code>length &gt;= 2</code>)</strong>: Every element must be a valid single term. Input order and exact interaction notation (such as <code>"b:a"</code>) are strictly preserved.</li>
 <li>
-<strong>Formula Shorthand (<code>length == 1</code>)</strong>: A single string containing formula operators (e.g., <code>".^2"</code> or <code>"a * b + c"</code>) is expanded as a formula right-hand side.</li>
+<strong>Formula Shorthand (<code>length == 1</code>)</strong>: A single string containing formula operators (e.g., <code>".^2"</code> or <code>"a * b + c"</code>) is expanded as a right-hand side formula expression.</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryo-asashi/modelterms" class="external-link">modelterms</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Preserves exact order and "b:a" notation for term label vectors</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Preserves exact order and "b:a" notation for term label vectors</span></span>
 <span><span class="va">t1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/modelterms.html">as_terms</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"b:a"</span>, <span class="st">"a"</span>, <span class="st">"1"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/modelterms.html">get_labels</a></span><span class="op">(</span><span class="va">t1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "b:a" "a"</span></span>
@@ -165,19 +178,20 @@ img {
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
 <span><span class="co"># Expands length-1 formula shorthands (including "." with data)</span></span>
-<span><span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/modelterms.html">as_terms</a></span><span class="op">(</span><span class="st">".^2"</span>, y <span class="op">=</span> <span class="st">"Ozone"</span>, data <span class="op">=</span> <span class="va">airquality</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/modelterms.html">as_terms</a></span><span class="op">(</span><span class="st">".^2"</span>, response <span class="op">=</span> <span class="st">"Ozone"</span>, data <span class="op">=</span> <span class="va">airquality</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/modelterms.html">get_labels</a></span><span class="op">(</span><span class="va">t2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Solar.R"      "Wind"         "Temp"         "Solar.R:Wind" "Solar.R:Temp"</span></span>
 <span><span class="co">#&gt; [6] "Wind:Temp"</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_2-filtering-terms-and-plotting">2. Filtering Terms and Plotting<a class="anchor" aria-label="anchor" href="#id_2-filtering-terms-and-plotting"></a>
+<h3 id="id_2-subsetting-filtering-and-modifying-terms-with-filter_terms">2. Subsetting, Filtering, and Modifying Terms with <code>filter_terms()</code>
+<a class="anchor" aria-label="anchor" href="#id_2-subsetting-filtering-and-modifying-terms-with-filter_terms"></a>
 </h3>
-<p><code><a href="reference/modelterms.html">filter_terms()</a></code> subsets a “terms” object by interaction order, required variables, or excluded variables. Unlike <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">stats::drop.terms()</a></code>, it safely returns an intercept-only (or empty) “terms” object even when all terms are filtered out.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p><code><a href="reference/modelterms.html">filter_terms()</a></code> is a declarative, crash-safe replacement for <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">stats::drop.terms()</a></code>, <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">stats::delete.response()</a></code>, and <code>[.terms</code>. You can subset terms directly by label or index, filter by interaction order or constituent variables, and modify the response or intercept—even if all predictor terms are filtered out.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Ozone</span><span class="op">)</span> <span class="op">~</span> <span class="va">Solar.R</span> <span class="op">+</span> <span class="va">Wind</span> <span class="op">+</span> <span class="va">Temp</span> <span class="op">+</span> <span class="va">Wind</span><span class="op">:</span><span class="va">Temp</span> <span class="op">+</span> <span class="va">Solar.R</span><span class="op">:</span><span class="va">Wind</span></span>
 <span></span>
-<span><span class="co"># Extract main effects only as a character vector</span></span>
+<span><span class="co"># Extract main effects only</span></span>
 <span><span class="va">fml</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/modelterms.html">filter_terms</a></span><span class="op">(</span>order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/modelterms.html">get_labels</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Solar.R" "Wind"    "Temp"</span></span>
 <span></span>
@@ -186,36 +200,68 @@ img {
 <span><span class="fu"><a href="reference/modelterms.html">get_labels</a></span><span class="op">(</span><span class="va">sub_terms</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Wind"      "Wind:Temp"</span></span>
 <span></span>
+<span><span class="co"># Drop specific interactions (order-invariantly) and replace the response variable</span></span>
+<span><span class="fu"><a href="reference/modelterms.html">filter_terms</a></span><span class="op">(</span><span class="va">fml</span>, drop <span class="op">=</span> <span class="st">"Temp:Wind"</span>, response <span class="op">=</span> <span class="st">"Ozone"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Ozone ~ 1 + Solar.R + Wind + Temp + Solar.R:Wind</span></span>
+<span><span class="co">#&gt; attr(,"variables")</span></span>
+<span><span class="co">#&gt; list(Ozone, Solar.R, Wind, Temp)</span></span>
+<span><span class="co">#&gt; attr(,"factors")</span></span>
+<span><span class="co">#&gt;         Solar.R Wind Temp Solar.R:Wind</span></span>
+<span><span class="co">#&gt; Ozone         0    0    0            0</span></span>
+<span><span class="co">#&gt; Solar.R       1    0    0            1</span></span>
+<span><span class="co">#&gt; Wind          0    1    0            1</span></span>
+<span><span class="co">#&gt; Temp          0    0    1            0</span></span>
+<span><span class="co">#&gt; attr(,"term.labels")</span></span>
+<span><span class="co">#&gt; [1] "Solar.R"      "Wind"         "Temp"         "Solar.R:Wind"</span></span>
+<span><span class="co">#&gt; attr(,"order")</span></span>
+<span><span class="co">#&gt; [1] 1 1 1 2</span></span>
+<span><span class="co">#&gt; attr(,"intercept")</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; attr(,"response")</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; attr(,".Environment")</span></span>
+<span><span class="co">#&gt; &lt;environment: R_GlobalEnv&gt;</span></span>
+<span></span>
 <span><span class="co"># Directly use the filtered terms object to fit a submodel</span></span>
-<span><span class="va">lm_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">sub_terms</span>, data <span class="op">=</span> <span class="va">airquality</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">lm_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">sub_terms</span>, data <span class="op">=</span> <span class="va">airquality</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">lm_sub</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  (Intercept)         Wind    Wind:Temp </span></span>
+<span><span class="co">#&gt;  4.187217000 -0.410375120  0.004366689</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_3-order-invariant-term-matching">3. Order-Invariant Term Matching<a class="anchor" aria-label="anchor" href="#id_3-order-invariant-term-matching"></a>
+<h3 id="id_3-order-invariant-term-matching-with-match_labels">3. Order-Invariant Term Matching with <code>match_labels()</code>
+<a class="anchor" aria-label="anchor" href="#id_3-order-invariant-term-matching-with-match_labels"></a>
 </h3>
-<p>When users specify interaction terms in plotting or evaluation functions, they may write <code>"Temp:Wind"</code> instead of <code>"Wind:Temp"</code>. <code><a href="reference/modelterms.html">match_labels()</a></code> normalizes and matches terms regardless of variable order while rejecting multi-term expressions like <code>"Wind * Temp"</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>When users specify interaction terms in plotting or evaluation functions, they may write <code>"Temp:Wind"</code> instead of <code>"Wind:Temp"</code>. <code><a href="reference/modelterms.html">match_labels()</a></code> normalizes and matches terms regardless of variable order while safely handling multi-term expressions like <code>"Wind * Temp"</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"log(x2)"</span>, <span class="st">"x1:log(x2)"</span>, <span class="st">"I(1:100):x1"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Matches reversed interaction notation to the canonical model labels</span></span>
 <span><span class="fu"><a href="reference/modelterms.html">match_labels</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log(x2):x1"</span>, <span class="st">"x1:I(1:100)"</span>, <span class="st">"x1"</span><span class="op">)</span>, <span class="va">labs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "x1:log(x2)"  "I(1:100):x1" "x1"</span></span>
+<span><span class="co">#&gt;    log(x2):x1   x1:I(1:100)            x1 </span></span>
+<span><span class="co">#&gt;  "x1:log(x2)" "I(1:100):x1"          "x1"</span></span>
 <span></span>
-<span><span class="co"># Safely handles unmatched or invalid expressions ("pass", "omit", or "fail")</span></span>
-<span><span class="fu"><a href="reference/modelterms.html">match_labels</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x1 * x2"</span>, <span class="st">"unknown"</span><span class="op">)</span>, <span class="va">labs</span>, nomatch <span class="op">=</span> <span class="st">"omit"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "x1"</span></span></code></pre></div>
+<span><span class="co"># Safely handles unmatched or invalid expressions ("omit", "pass", or "fail")</span></span>
+<span><span class="fu"><a href="reference/modelterms.html">match_labels</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x1 * x2"</span>, <span class="st">"unknown"</span><span class="op">)</span>, <span class="va">labs</span>, nomatch <span class="op">=</span> <span class="st">"pass"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      x1 x1 * x2 unknown </span></span>
+<span><span class="co">#&gt;    "x1"      NA      NA</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="function-reference-summary">Function Reference Summary<a class="anchor" aria-label="anchor" href="#function-reference-summary"></a>
 </h2>
 <ul>
-<li>Coercion &amp; Filtering: <code><a href="reference/modelterms.html">as_terms()</a></code>, <code><a href="reference/modelterms.html">filter_terms()</a></code>
+<li>
+<strong>Coercion &amp; Filtering</strong> (returns a <code>terms</code> object): <code><a href="reference/modelterms.html">as_terms()</a></code>, <code><a href="reference/modelterms.html">filter_terms()</a></code>
 </li>
-<li>Extraction: <code><a href="reference/modelterms.html">get_labels()</a></code>, <code><a href="reference/modelterms.html">get_variables()</a></code>, <code><a href="reference/modelterms.html">get_response()</a></code>, <code><a href="reference/modelterms.html">get_order()</a></code>
+<li>
+<strong>Label Extraction &amp; Matching</strong> (returns a <code>character</code> vector): <code><a href="reference/modelterms.html">get_labels()</a></code>, <code><a href="reference/modelterms.html">match_labels()</a></code>
 </li>
-<li>Inspection &amp; Predicates: <code><a href="reference/modelterms.html">has_intercept()</a></code>, <code><a href="reference/modelterms.html">has_response()</a></code>, <code><a href="reference/modelterms.html">is_single_term()</a></code>, <code><a href="reference/modelterms.html">is_fully_crossed()</a></code>
+<li>
+<strong>Variable &amp; Attribute Extraction</strong>: <code><a href="reference/modelterms.html">get_variables()</a></code>, <code><a href="reference/modelterms.html">get_response()</a></code>, <code><a href="reference/modelterms.html">get_order()</a></code>
 </li>
-<li>Matching: <code><a href="reference/modelterms.html">make_signature()</a></code>, <code><a href="reference/modelterms.html">match_labels()</a></code>
+<li>
+<strong>Structural Predicates</strong> (returns a scalar <code>logical</code>): <code><a href="reference/modelterms.html">has_intercept()</a></code>, <code><a href="reference/modelterms.html">has_response()</a></code>
 </li>
 </ul>
 </div>
