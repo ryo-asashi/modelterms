@@ -280,7 +280,7 @@ fml |> filter_terms("log(x2):x1")
 #> attr(,"response")
 #> [1] 1
 #> attr(,".Environment")
-#> <environment: 0x5c37e20165d0>
+#> <environment: 0x5ccfdc235680>
 fml |> filter_terms(order = 1) |> get_labels()
 #> [1] "x1"         "log(x2)"    "I(x1 * x2)"
 fml |> filter_terms(require = "x2", remove = "x1", raw = TRUE) |> get_labels()
@@ -303,7 +303,7 @@ fml |> filter_terms(drop = "log(x2):x1", response = FALSE)
 #> attr(,"response")
 #> [1] 0
 #> attr(,".Environment")
-#> <environment: 0x5c37e20165d0>
+#> <environment: 0x5ccfdc235680>
 fml |> filter_terms(order = 1, response = "yhat", intercept = FALSE)
 #> yhat ~ -1 + x1 + log(x2) + I(x1 * x2)
 #> attr(,"variables")
@@ -323,7 +323,7 @@ fml |> filter_terms(order = 1, response = "yhat", intercept = FALSE)
 #> attr(,"response")
 #> [1] 1
 #> attr(,".Environment")
-#> <environment: 0x5c37e20165d0>
+#> <environment: 0x5ccfdc235680>
 
 # Order-invariant label matching
 match_labels(c("x1", "log(x2):x1", "I(x2 * x1)"), fml, nomatch = "pass")
