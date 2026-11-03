@@ -46,13 +46,14 @@ test_that("as_terms handles strict term vectors vs length-1 shorthands", {
 
 
 test_that("as_terms handles intercept, response, and empty character(0)", {
-  # Default intercept = NULL (FALSE for character), overridden by "1", "+1", or intercept = TRUE
+  # Default intercept = NULL (FALSE for character), overridden by "1", "+1", or intercept = TRUE/FALSE
   expect_false(has_intercept(as_terms(c("x1", "x2"))))
   expect_true(has_intercept(as_terms(c("x1", "x2"), intercept = TRUE)))
   expect_true(has_intercept(as_terms(c("x1", "1"))))
   expect_true(has_intercept(as_terms(c("1", "x1"))))
+  expect_false(has_intercept(as_terms(c("x1", "-1"))))
+  expect_true(has_intercept(as_terms(c("x1", "-1"), intercept = TRUE)))
   expect_false(has_intercept(as_terms(c("x1", "1"), intercept = FALSE)))
-
   # Empty character(0) produces valid intercept-only or empty terms object
   t_empty0 <- as_terms(character(0), intercept = FALSE)
   expect_s3_class(t_empty0, "terms")

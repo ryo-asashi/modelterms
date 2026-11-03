@@ -7,6 +7,9 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/ryo-asashi/modelterms/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ryo-asashi/modelterms/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/ryo-asashi/modelterms/graph/badge.svg)](https://app.codecov.io/gh/ryo-asashi/modelterms)
 <!-- badges: end -->
 
 **modelterms** is a lightweight, zero-dependency R package providing a
