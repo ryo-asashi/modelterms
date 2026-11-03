@@ -1,9 +1,8 @@
 # modelterms
 
-**modelterms** is a lightweight, zero-dependency R package providing a
-unified interface for manipulating
-[`stats::terms`](https://rdrr.io/r/stats/terms.html) objects, formulas,
-fitted models, and character vectors of term labels.
+**modelterms** is a lightweight R package providing a unified interface
+for manipulating [`stats::terms`](https://rdrr.io/r/stats/terms.html)
+objects, formulas, fitted models, and character vectors of term labels.
 
 It is designed both as a standalone utility for statistical modeling
 workflows and as a core infrastructure module for other packages

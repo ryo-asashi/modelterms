@@ -2,8 +2,6 @@
 
 ## Model Terms
 
-Coerce, Inspect, Filter, and Match Model Terms and Labels.
-
 - [`as_terms()`](https://ryo-asashi.github.io/modelterms/reference/modelterms.md)
   [`filter_terms()`](https://ryo-asashi.github.io/modelterms/reference/modelterms.md)
   [`get_labels()`](https://ryo-asashi.github.io/modelterms/reference/modelterms.md)
