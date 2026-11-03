@@ -12,9 +12,9 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 coverage](https://codecov.io/gh/ryo-asashi/modelterms/graph/badge.svg)](https://app.codecov.io/gh/ryo-asashi/modelterms)
 <!-- badges: end -->
 
-**modelterms** is a lightweight, zero-dependency R package providing a
-unified interface for manipulating `stats::terms` objects, formulas,
-fitted models, and character vectors of term labels.
+**modelterms** is a lightweight R package providing a unified interface
+for manipulating `stats::terms` objects, formulas, fitted models, and
+character vectors of term labels.
 
 It is designed both as a standalone utility for statistical modeling
 workflows and as a core infrastructure module for other packages

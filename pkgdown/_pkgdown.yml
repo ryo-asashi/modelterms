@@ -23,6 +23,5 @@ template:
 
 reference:
   - title: "Model Terms"
-    desc: "Coerce, Inspect, Filter, and Match Model Terms and Labels."
     contents:
       - modelterms
